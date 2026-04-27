@@ -49,6 +49,26 @@ If correctness remains after removing a dependency, that dependency was never fu
 
 ---
 
+## 🧩 Structural Collapse Guarantee
+
+This framework does not modify classical outcomes.
+It preserves them.
+
+`phi((m, a, s)) = m`
+
+Where:
+- `m` = classical result  
+- `a` = alignment  
+- `s` = structural state  
+
+`outcome_visible iff structure_mature`
+
+No new result is created.  
+No approximation is introduced.  
+The system collapses to the same classical truth.
+
+---
+
 ## 🌍 Civilizational Impact
 
 From uncertainty to structural certainty.
