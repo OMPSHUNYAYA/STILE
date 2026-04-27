@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STILE MessageDelivery Demo — Delivery Without Communication</title>
+  <style>
+    :root{
+      --bg:#06111f;
+      --bg2:#0b1628;
+      --panel:rgba(255,255,255,.075);
+      --panel2:rgba(255,255,255,.11);
+      --line:rgba(255,255,255,.14);
+      --text:#eef6ff;
+      --muted:#b9c9e6;
+      --blue:#7fb0ff;
+      --mint:#69f0c8;
+      --gold:#ffd166;
+      --red:#ff6b7a;
+      --gray:#a9b4c8;
+      --ink:#06111f;
+      --shadow:0 24px 70px rgba(0,0,0,.38);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      min-height:100vh;
+      color:var(--text);
+      font-family:Inter,Segoe UI,Arial,sans-serif;
+      background:
+        radial-gradient(circle at 12% 4%, rgba(127,176,255,.22), transparent 28%),
+        radial-gradient(circle at 88% 0%, rgba(105,240,200,.15), transparent 26%),
+        radial-gradient(circle at 50% 100%, rgba(255,209,102,.10), transparent 28%),
+        linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);
+    }
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:1480px;margin:0 auto;padding:18px;display:grid;gap:16px}
+    .hero,.panel,.card,.console,.sidebar,.flow-box{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.045));box-shadow:var(--shadow);backdrop-filter:blur(16px)}
+    .hero{border-radius:32px;padding:26px;position:relative;overflow:hidden}
+    .hero:after{content:"";position:absolute;right:-90px;top:-90px;width:260px;height:260px;border-radius:999px;background:radial-gradient(circle,rgba(105,240,200,.18),transparent 62%)}
+    .eyebrow{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);background:rgba(255,255,255,.08);border-radius:999px;padding:8px 12px;color:var(--gold);font-weight:900;font-size:.78rem;letter-spacing:.11em;text-transform:uppercase}
+    h1{font-size:clamp(2.1rem,4.2vw,5.2rem);line-height:.98;letter-spacing:-.06em;margin:16px 0 10px;max-width:1070px}
+    .hero p{margin:0;max-width:930px;color:var(--muted);line-height:1.62;font-size:1.05rem}
+    .laws{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}
+    .law{border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.20);border-radius:18px;padding:14px}
+    .law strong{display:block;color:var(--gold);font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px}
+    .law span{font-weight:900;line-height:1.3}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+    .btn{border:1px solid var(--line);border-radius:999px;padding:12px 17px;font-weight:900;cursor:pointer;background:rgba(255,255,255,.08);color:var(--text);transition:.18s ease}
+    .btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.12)}
+    .btn.primary{background:linear-gradient(135deg,var(--blue),var(--mint));color:var(--ink);border:none}
+    .grid{display:grid;grid-template-columns:330px minmax(0,1fr);gap:16px;align-items:start}
+    .sidebar{position:sticky;top:16px;border-radius:26px;padding:18px}
+    .brand{display:flex;gap:13px;align-items:center;margin-bottom:14px}
+    .logo{width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 50% 50%,#ffe879 0 10%,#fff 10% 25%,#f5cb57 25% 54%,transparent 55%),radial-gradient(circle,rgba(255,255,255,.3),transparent 72%);box-shadow:0 0 28px rgba(255,209,102,.32);border:1px solid rgba(255,255,255,.18)}
+    .brand h2{font-size:1.05rem;margin:0 0 3px}.brand p{font-size:.9rem;color:var(--muted);margin:0;line-height:1.4}
+    .nav{display:grid;gap:7px;margin:14px 0}.nav a{border-radius:14px;padding:9px 11px;color:#dbe9ff;background:rgba(255,255,255,.045);border:1px solid transparent;font-weight:750}.nav a:hover{border-color:var(--line);transform:translateX(3px)}
+    .side-note{border-radius:18px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.22);padding:13px;color:var(--muted);line-height:1.55;font-size:.92rem}
+    .main{display:grid;gap:16px}
+    .panel{border-radius:26px;padding:22px}
+    .section-title{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:14px}
+    .section-title h3{margin:0;font-size:1.55rem;letter-spacing:-.025em}.section-title p{margin:0;color:var(--muted);line-height:1.45;max-width:680px}
+    .demo-layout{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:16px}
+    .casebar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+    .case{cursor:pointer;border:1px solid var(--line);background:rgba(255,255,255,.055);border-radius:18px;padding:12px;transition:.18s ease;min-height:110px}
+    .case:hover,.case.active{transform:translateY(-2px);background:rgba(127,176,255,.13);border-color:rgba(127,176,255,.35)}
+    .case .k{display:block;font-size:.72rem;font-weight:900;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}.case .t{display:block;font-weight:900;margin-bottom:6px}.case small{color:var(--muted);line-height:1.42}
+    .state-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px}
+    .state-card{border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.20);border-radius:20px;padding:15px}
+    .state-card strong{display:block;color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}.state-card span{font-size:1.28rem;font-weight:900;letter-spacing:-.02em}.state-card .ok{color:var(--mint)}.state-card .warn{color:var(--gold)}.state-card .bad{color:var(--red)}
+    .structure{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .field{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.045);border-radius:16px;padding:12px}.field b{display:block;color:var(--gold);font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}.field code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#eaf4ff}
+    .console{border-radius:22px;padding:16px;background:rgba(0,0,0,.36)}
+    pre{margin:0;white-space:pre-wrap;word-break:break-word;color:#e9f3ff;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.86rem;line-height:1.55}
+    .flow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}.flow-box{box-shadow:none;border-radius:22px;padding:16px;min-height:154px}.flow-box strong{display:block;color:var(--gold);font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}.flow-box h4{margin:0 0 8px;font-size:1.08rem}.flow-box p{margin:0;color:var(--muted);line-height:1.52;font-size:.94rem}
+    .compare{width:100%;border-collapse:collapse;overflow:hidden;border-radius:18px;border:1px solid var(--line)}.compare th,.compare td{padding:13px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;line-height:1.45}.compare th{background:rgba(255,255,255,.07);color:#d7e6ff;font-size:.8rem;letter-spacing:.07em;text-transform:uppercase}.compare tr:last-child td{border-bottom:none}
+    .badge{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:5px 9px;font-size:.78rem;font-weight:850}.badge.green{background:rgba(105,240,200,.13);color:#baffec}.badge.red{background:rgba(255,107,122,.13);color:#ffd2d8}.badge.gold{background:rgba(255,209,102,.13);color:#ffe6a6}.badge.gray{background:rgba(169,180,200,.13);color:#d9e0ee}
+    .challenge{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.challenge .card{box-shadow:none;border-radius:22px;padding:16px;min-height:170px}.card h4{margin:0 0 8px}.card p{margin:0;color:var(--muted);line-height:1.52}
+    .footer{text-align:center;color:var(--muted);line-height:1.6;padding:28px 8px 42px}.footer strong{color:var(--text)}
+    @media(max-width:1120px){.grid,.demo-layout{grid-template-columns:1fr}.sidebar{position:static}.laws,.casebar,.state-grid,.flow,.challenge{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:720px){.wrap{padding:12px}.hero,.panel,.sidebar{padding:18px;border-radius:22px}.laws,.casebar,.state-grid,.flow,.challenge,.structure{grid-template-columns:1fr}h1{font-size:2.2rem}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero" id="top">
+      <div class="eyebrow">STILE MessageDelivery Demo</div>
+      <h1>Delivery Without Communication</h1>
+      <p>STILE proves a deeper delivery law: a message is not delivered because a network says it was sent, acknowledged, retried, or confirmed. Delivery becomes visible only when the delivery structure is complete and consistent.</p>
+      <div class="laws">
+        <div class="law"><strong>Core</strong><span>correctness = structure</span></div>
+        <div class="law"><strong>Visibility</strong><span>message_delivered iff structure_aligned</span></div>
+        <div class="law"><strong>Alignment</strong><span>complete AND consistent</span></div>
+        <div class="law"><strong>Proof</strong><span>same structure -> same certificate</span></div>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="#demo">Run the structural demo</a>
+        <a class="btn" href="#challenge">Try to break the invariant</a>
+        <a class="btn" href="#architecture">View architecture</a>
+      </div>
+    </section>
+
+    <div class="grid">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div><h2>STILE</h2><p>Structural Integration Leverage</p></div>
+        </div>
+        <nav class="nav">
+          <a href="#demo">Interactive Resolution</a>
+          <a href="#architecture">Truth vs Transport</a>
+          <a href="#comparison">Comparison</a>
+          <a href="#challenge">Break This STILE</a>
+          <a href="#implementation">Reference Kernel</a>
+        </nav>
+        <div class="side-note">
+          <strong>What this demo is</strong><br />A browser-based structural resolver. No server. No API. No message gateway. No network delivery confirmation. The visible result is admitted by structure alone.
+        </div>
+      </aside>
+
+      <main class="main">
+        <section class="panel" id="demo">
+          <div class="section-title">
+            <h3>Interactive structural delivery</h3>
+            <p>Select a case. The resolver recomputes state deterministically from structure. Delivery appears only when alignment is complete and consistent.</p>
+          </div>
+
+          <div class="casebar" id="cases"></div>
+
+          <div class="demo-layout">
+            <div>
+              <div class="state-grid">
+                <div class="state-card"><strong>Resolution</strong><span id="resolution">RESOLVED</span></div>
+                <div class="state-card"><strong>Visible State</strong><span id="visibleState" class="ok">DELIVERED</span></div>
+                <div class="state-card"><strong>Certificate</strong><span id="sigma">0000000000000000</span></div>
+              </div>
+              <div class="structure" id="structureFields"></div>
+            </div>
+            <div class="console" aria-label="deterministic output">
+              <pre id="output"></pre>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="architecture">
+          <div class="section-title">
+            <h3>Truth vs transport</h3>
+            <p>STILE does not deny transport. It separates delivery truth from delivery transport.</p>
+          </div>
+          <div class="flow">
+            <div class="flow-box"><strong>Layer 1</strong><h4>Structure Layer</h4><p>Determines delivery truth from sender intent, receiver expectation, message identity, delivery context, and conflict state.</p></div>
+            <div class="flow-box"><strong>Layer 2</strong><h4>Representation Layer</h4><p>Optional messages, APIs, receipts, logs, UI states, or certificates may represent the truth once it is structurally admitted.</p></div>
+            <div class="flow-box"><strong>Layer 3</strong><h4>Transport Layer</h4><p>Optional networks, queues, gateways, retries, and acknowledgements may move data. They do not create correctness.</p></div>
+          </div>
+        </section>
+
+        <section class="panel" id="comparison">
+          <div class="section-title">
+            <h3>Comparison</h3>
+            <p>STILE is a correctness layer, not a messaging replacement.</p>
+          </div>
+          <table class="compare">
+            <thead><tr><th>Model</th><th>Communication Required</th><th>Network Required</th><th>Structure-Based</th><th>Deterministic</th></tr></thead>
+            <tbody>
+              <tr><td>Classical Messaging</td><td><span class="badge red">Yes</span></td><td><span class="badge red">Yes</span></td><td><span class="badge gray">No</span></td><td><span class="badge gold">Conditional</span></td></tr>
+              <tr><td>Distributed Systems</td><td><span class="badge red">Yes</span></td><td><span class="badge red">Yes</span></td><td><span class="badge gold">Partial</span></td><td><span class="badge gold">Conditional</span></td></tr>
+              <tr><td>Retry-Based Systems</td><td><span class="badge red">Yes</span></td><td><span class="badge red">Yes</span></td><td><span class="badge gray">No</span></td><td><span class="badge gold">Conditional</span></td></tr>
+              <tr><td><strong>STILE</strong></td><td><span class="badge green">No</span></td><td><span class="badge green">No</span></td><td><span class="badge green">Yes</span></td><td><span class="badge green">Yes</span></td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="panel" id="challenge">
+          <div class="section-title">
+            <h3>Break This STILE</h3>
+            <p>The demo becomes meaningful when the invariant refuses to break.</p>
+          </div>
+          <div class="challenge">
+            <div class="card"><h4>1. Same structure, different result?</h4><p>If identical structure produces a different visible delivery state or certificate, STILE fails. In this demo, identical structure always collapses to identical output.</p></div>
+            <div class="card"><h4>2. Incomplete structure, forced delivery?</h4><p>If missing identity, expectation, or context still produces delivery, safety fails. Here it resolves to ABSTAIN.</p></div>
+            <div class="card"><h4>3. Conflict, arbitrary delivery?</h4><p>If contradiction still admits delivery, correctness fails. Here it resolves to CONFLICT and no delivery appears.</p></div>
+          </div>
+        </section>
+
+        <section class="panel" id="implementation">
+          <div class="section-title">
+            <h3>Reference kernel logic</h3>
+            <p>The HTML demo mirrors the minimal Python idea: derive flags, resolve structure, then reveal delivery only after alignment.</p>
+          </div>
+          <div class="console"><pre>resolve(structure) ->
+
+RESOLVED   if structure_aligned
+ABSTAIN    if structure is incomplete
+CONFLICT   if structure is inconsistent
+
+where:
+
+structure_aligned = complete AND consistent
+message_delivered iff structure_aligned
+same structure -> same delivery -> same certificate</pre></div>
+        </section>
+      </main>
+    </div>
+
+    <div class="footer"><strong>STILE — Structural Integration Leverage</strong><br />Research architecture only. Not certified for safety-critical, financial, or real-time deployment without independent validation.</div>
+  </div>
+
+  <script>
+    const scenarios = [
+      {
+        id:"aligned",
+        label:"Valid Alignment",
+        summary:"Complete and consistent structure admits delivery.",
+        s:{sender:"A",receiver:"B",message_id:"MSG-001",intent:"CONFIRM",expectation:"CONFIRM",context:"DEVICE_A",conflict:false}
+      },
+      {
+        id:"mismatch",
+        label:"Intent Mismatch",
+        summary:"Intent and expectation differ, so delivery is absent.",
+        s:{sender:"A",receiver:"B",message_id:"MSG-001",intent:"CONFIRM",expectation:"CANCEL",context:"DEVICE_A",conflict:false}
+      },
+      {
+        id:"conflict",
+        label:"Conflict Present",
+        summary:"Explicit contradiction blocks delivery even when fields exist.",
+        s:{sender:"A",receiver:"B",message_id:"MSG-001",intent:"CONFIRM",expectation:"CONFIRM",context:"DEVICE_A",conflict:true}
+      },
+      {
+        id:"incomplete",
+        label:"Incomplete Structure",
+        summary:"Missing identity creates safe silence: ABSTAIN.",
+        s:{sender:"A",receiver:"B",message_id:null,intent:"CONFIRM",expectation:"CONFIRM",context:"DEVICE_A",conflict:false}
+      }
+    ];
+
+    async function sha256(text){
+      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+      return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("").slice(0,16);
+    }
+
+    function normalize(value){
+      if (Array.isArray(value)) return value.map(normalize);
+      if (value && typeof value === "object") {
+        const sorted = {};
+        Object.keys(value).sort().forEach(k => { sorted[k] = normalize(value[k]); });
+        return sorted;
+      }
+      return value;
+    }
+
+    function canonical(value){
+      return JSON.stringify(normalize(value));
+    }
+
+    function detectReason(s, checks){
+      const reasons = [];
+      if (!checks.identity_valid) reasons.push("MISSING_MESSAGE_ID");
+      if (!checks.sender_present) reasons.push("MISSING_SENDER");
+      if (!checks.receiver_present) reasons.push("MISSING_RECEIVER");
+      if (!checks.intent_present) reasons.push("MISSING_INTENT");
+      if (!checks.expectation_present) reasons.push("MISSING_EXPECTATION");
+      if (!checks.context_complete) reasons.push("MISSING_CONTEXT");
+      if (!checks.intent_match && checks.intent_present && checks.expectation_present) reasons.push("INTENT_EXPECTATION_MISMATCH");
+      if (!checks.no_conflict) reasons.push("EXPLICIT_CONFLICT_FLAG");
+      return reasons.length ? reasons : ["STRUCTURE_NOT_ALIGNED"];
+    }
+
+    async function resolveStructure(s){
+      const checks = {
+        sender_present: Boolean(s.sender),
+        receiver_present: Boolean(s.receiver),
+        identity_valid: Boolean(s.message_id),
+        intent_present: Boolean(s.intent),
+        expectation_present: Boolean(s.expectation),
+        context_complete: Boolean(s.context),
+        intent_match: s.intent === s.expectation,
+        no_conflict: s.conflict === false
+      };
+
+      const complete = Boolean(
+        checks.sender_present &&
+        checks.receiver_present &&
+        checks.identity_valid &&
+        checks.intent_present &&
+        checks.expectation_present &&
+        checks.context_complete
+      );
+
+      const inconsistent = Boolean(
+        !checks.no_conflict ||
+        (checks.intent_present && checks.expectation_present && !checks.intent_match)
+      );
+
+      const consistent = !inconsistent;
+      const structure_aligned = Boolean(complete && consistent);
+
+      let resolution = "ABSTAIN";
+      if (inconsistent) resolution = "CONFLICT";
+      else if (structure_aligned) resolution = "RESOLVED";
+
+      const reason_codes = structure_aligned ? [] : detectReason(s, checks);
+
+      const delivery = structure_aligned ? {
+        message_id:s.message_id,
+        status:"STRUCTURALLY_DELIVERED",
+        visible_state:"DELIVERED"
+      } : null;
+
+      const proofIdentity = delivery ? {
+        proof_type:"STILE_DELIVERY_PROOF",
+        resolution,
+        delivery,
+        structure:{
+          sender:s.sender,
+          receiver:s.receiver,
+          message_id:s.message_id,
+          intent:s.intent,
+          expectation:s.expectation,
+          context:s.context
+        }
+      } : {
+        proof_type:"STILE_NON_DELIVERY_PROOF",
+        resolution,
+        reason_codes,
+        structure:{
+          sender:s.sender,
+          receiver:s.receiver,
+          message_id:s.message_id,
+          intent:s.intent,
+          expectation:s.expectation,
+          context:s.context,
+          conflict:s.conflict
+        },
+        checks
+      };
+
+      const sigma = await sha256(canonical(proofIdentity));
+
+      return {
+        sender:s.sender,
+        receiver:s.receiver,
+        message_id:s.message_id,
+        intent:s.intent,
+        expectation:s.expectation,
+        context:s.context,
+        conflict:s.conflict,
+        ...checks,
+        complete,
+        consistent,
+        inconsistent,
+        structure_aligned,
+        resolution,
+        reason_codes,
+        delivery,
+        proof_identity: proofIdentity,
+        sigma
+      };
+    }
+
+    const casesEl = document.getElementById("cases");
+    const fieldsEl = document.getElementById("structureFields");
+    const outputEl = document.getElementById("output");
+    const resolutionEl = document.getElementById("resolution");
+    const visibleEl = document.getElementById("visibleState");
+    const sigmaEl = document.getElementById("sigma");
+
+    function renderCases(active){
+      casesEl.innerHTML = scenarios.map((c,i)=>`<button class="case ${c.id===active?'active':''}" data-id="${c.id}"><span class="k">Scenario ${i+1}</span><span class="t">${c.label}</span><small>${c.summary}</small></button>`).join("");
+      casesEl.querySelectorAll(".case").forEach(btn=>btn.addEventListener("click",()=>render(btn.dataset.id)));
+    }
+
+    function showValue(v){return v === null ? "null" : String(v);}
+
+    async function render(id="aligned"){
+      renderCases(id);
+      const scenario = scenarios.find(x=>x.id===id) || scenarios[0];
+      const r = await resolveStructure(scenario.s);
+      resolutionEl.textContent = r.resolution;
+      resolutionEl.className = r.resolution === "RESOLVED" ? "ok" : r.resolution === "CONFLICT" ? "bad" : "warn";
+      visibleEl.textContent = r.delivery ? "DELIVERED" : "ABSENT";
+      visibleEl.className = r.delivery ? "ok" : r.resolution === "CONFLICT" ? "bad" : "warn";
+      sigmaEl.textContent = r.sigma;
+      sigmaEl.className = r.delivery ? "ok" : "warn";
+
+      const fields = [
+        ["sender",r.sender],
+        ["receiver",r.receiver],
+        ["message_id",r.message_id],
+        ["intent",r.intent],
+        ["expectation",r.expectation],
+        ["context",r.context],
+        ["conflict",r.conflict],
+        ["complete",r.complete],
+        ["consistent",r.consistent],
+        ["reason_codes",r.reason_codes.join(", ")],
+        ["structure_aligned",r.structure_aligned]
+      ];
+      fieldsEl.innerHTML = fields.map(([k,v])=>`<div class="field"><b>${k}</b><code>${showValue(v)}</code></div>`).join("");
+      outputEl.textContent = JSON.stringify(r,null,2);
+      return r;
+    }
+
+    render("aligned");
+  </script>
+</body>
+</html>
