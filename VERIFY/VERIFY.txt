@@ -1,0 +1,346 @@
+STILE-MessageDelivery Verification
+
+1. Open the reference demonstration
+
+Option A (recommended):
+
+python -m http.server 8000
+
+Then open in browser:
+
+http://localhost:8000/demo/stile_message_delivery.html
+
+Option B (direct open):
+Open:
+
+demo/stile_message_delivery.html
+
+in a modern browser.
+
+2. Observe
+
+deterministic structural delivery resolution
+no communication required
+no network dependency
+no acknowledgements
+no retries
+delivery is not triggered by sending
+delivery appears only when structure is aligned
+evaluation does not determine correctness (only structural sufficiency does)
+
+3. Expected baseline states
+
+aligned
+  resolution: RESOLVED
+  visible_state: DELIVERED
+  reason_codes: NONE
+
+mismatch
+  resolution: CONFLICT
+  visible_state: ABSENT
+  reason_codes: INTENT_EXPECTATION_MISMATCH
+
+conflict
+  resolution: CONFLICT
+  visible_state: ABSENT
+  reason_codes: EXPLICIT_CONFLICT_FLAG
+
+incomplete
+  resolution: ABSTAIN
+  visible_state: ABSENT
+  reason_codes: MISSING_MESSAGE_ID
+
+Note:
+For aligned structure, reason_codes is an empty array [].
+It is shown as NONE in this plain-text verification file for readability.
+
+4. Structural alignment rule
+
+structure_aligned = complete AND consistent
+message_delivered iff structure_aligned
+
+5. Expected behavior
+
+complete AND consistent -> RESOLVED -> delivery visible
+incomplete structure -> ABSTAIN -> no delivery
+inconsistent structure -> CONFLICT -> no delivery
+identical structure -> identical delivery state and certificate
+
+6. Verify determinism
+
+In browser console:
+
+let a = await resolveStructure(scenarios[0].s)
+let b = await resolveStructure(scenarios[0].s)
+
+a.sigma === b.sigma
+
+Expected:
+
+true
+
+Confirm:
+
+same structure -> same certificate
+repeated evaluation does not change result
+
+6A. Verify full invariant (delivery + certificate)
+
+let a = await resolveStructure(scenarios[0].s)
+let b = await resolveStructure(scenarios[0].s)
+
+a.resolution === b.resolution
+a.delivery?.visible_state === b.delivery?.visible_state
+a.sigma === b.sigma
+
+Expected:
+
+true
+true
+true
+
+Confirm:
+
+same structure -> same resolution -> same delivery -> same certificate
+
+7. Verify scenario outputs
+
+for (const sc of scenarios) {
+  const r = await resolveStructure(sc.s)
+  console.log(
+    sc.id,
+    r.resolution,
+    r.reason_codes,
+    r.delivery?.visible_state || "ABSENT",
+    r.sigma
+  )
+}
+
+Expected:
+
+aligned
+  resolution: RESOLVED
+  visible_state: DELIVERED
+  reason_codes: NONE
+  sigma: <stable sigma>
+
+mismatch
+  resolution: CONFLICT
+  visible_state: ABSENT
+  reason_codes: INTENT_EXPECTATION_MISMATCH
+  sigma: <stable sigma>
+
+conflict
+  resolution: CONFLICT
+  visible_state: ABSENT
+  reason_codes: EXPLICIT_CONFLICT_FLAG
+  sigma: <stable sigma>
+
+incomplete
+  resolution: ABSTAIN
+  visible_state: ABSENT
+  reason_codes: MISSING_MESSAGE_ID
+  sigma: <stable sigma>
+
+7A. Structural Truth vs Network Illusion
+
+This test simulates a traditional delivery model where:
+delivery is assumed based on send/ack logic instead of structure.
+
+In browser console:
+
+function fakeNetworkDelivery(s) {
+  return {
+    message_id: s.message_id,
+    status: "DELIVERED",
+    via: "NETWORK_SIMULATION"
+  };
+}
+
+Test mismatch case:
+
+let structural = await resolveStructure(scenarios[1].s)
+let network = fakeNetworkDelivery(scenarios[1].s)
+
+console.log("STRUCTURAL:", structural.delivery)
+console.log("NETWORK:", network)
+
+Expected:
+
+STRUCTURAL: null
+NETWORK: { message_id: "MSG-001", status: "DELIVERED", via: "NETWORK_SIMULATION" }
+
+Test conflict case:
+
+structural = await resolveStructure(scenarios[2].s)
+network = fakeNetworkDelivery(scenarios[2].s)
+
+console.log("STRUCTURAL:", structural.delivery)
+console.log("NETWORK:", network)
+
+Expected:
+
+STRUCTURAL: null
+NETWORK: { message_id: "MSG-001", status: "DELIVERED", via: "NETWORK_SIMULATION" }
+
+Observation:
+
+network-based model reports delivery even when structure is invalid
+
+structural model refuses delivery when structure is not aligned
+
+Conclusion:
+
+delivery != transmission
+delivery != acknowledgement
+delivery = resolve(structure)
+
+8. Verify distinct proof identities
+
+let r1 = await resolveStructure(scenarios[1].s) // mismatch
+let r2 = await resolveStructure(scenarios[2].s) // conflict
+
+r1.sigma !== r2.sigma
+
+Expected:
+
+true
+
+Note:
+
+different structural failure types produce different certificates
+proof identity includes reason_codes
+
+9. Verify incomplete safety (ABSTAIN)
+
+let s = {...scenarios[0].s}
+s.message_id = null
+
+await resolveStructure(s)
+
+Expected:
+
+resolution = ABSTAIN
+delivery = null
+
+Note:
+
+no forced delivery
+system remains silent
+
+10. Verify conflict safety (CONFLICT)
+
+let s = {...scenarios[0].s}
+s.conflict = true
+
+await resolveStructure(s)
+
+Expected:
+
+resolution = CONFLICT
+delivery = null
+
+Note:
+
+conflicting structure does not produce delivery
+
+11. Verify intent mismatch
+
+let s = {...scenarios[0].s}
+s.expectation = "CANCEL"
+
+await resolveStructure(s)
+
+Expected:
+
+resolution = CONFLICT
+reason_codes = ['INTENT_EXPECTATION_MISMATCH']
+
+12. Verify order independence
+
+let s1 = {...scenarios[0].s}
+let s2 = {}
+Object.keys(s1).reverse().forEach(k => s2[k] = s1[k])
+
+let r1 = await resolveStructure(s1)
+let r2 = await resolveStructure(s2)
+
+r1.sigma === r2.sigma
+
+Expected:
+
+true
+
+Result:
+
+structure order does not affect outcome
+
+13. Verify structural transitions
+
+let s = {...scenarios[0].s}
+let r1 = await resolveStructure(s)
+
+s.expectation = "CANCEL"
+let r2 = await resolveStructure(s)
+
+r1.resolution !== r2.resolution
+
+Expected:
+
+true
+
+14. Verify UI integrity
+
+typeof render === "function"
+typeof resolveStructure === "function"
+document.getElementById("cases") !== null
+document.getElementById("output") !== null
+
+Expected:
+
+true
+
+15. Verify file identity (demo artifacts)
+
+certutil -hashfile demo\stile_message_delivery.html SHA256
+certutil -hashfile demo\stile_message_delivery.py SHA256
+
+Note:
+
+file hash represents file identity
+structural certificate represents resolved delivery proof
+
+16. Structural resolution model
+
+resolve(structure) ->
+
+RESOLVED   if structure_aligned
+ABSTAIN    if structure is incomplete
+CONFLICT   if structure is inconsistent
+
+17. Core invariant
+
+delivery correctness = resolve(structure)
+message_delivered iff structure_aligned
+structure_aligned = complete AND consistent
+
+18. Confirm
+
+identical structure -> identical delivery
+identical structure -> identical certificate
+no communication required for correctness
+no network required for correctness
+no acknowledgements required for correctness
+no retries required for correctness
+incomplete structure does not produce delivery
+conflicting structure does not produce delivery
+
+Result
+
+Deterministic structural delivery confirmed for STILE.
+
+Delivery correctness emerges from structure --
+not from communication, network, acknowledgements, retries, or execution flow.
+
+Communication may transport messages,
+but it does not determine delivery truth.
