@@ -16,7 +16,7 @@ delivery correctness does not require communication, acknowledgements, retries, 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Open-Standard](https://img.shields.io/badge/Reference-Open%20Standard-blue)
 
-![STILE Verify](https://github.com/OMPSHUNYAYA/STILE/actions/workflows/stile-verify.yml/badge.svg)
+[![STILE Verify](https://github.com/OMPSHUNYAYA/STILE/actions/workflows/stile-verify.yml/badge.svg?branch=main)](https://github.com/OMPSHUNYAYA/STILE/actions/workflows/stile-verify.yml)
 
 ---
 
