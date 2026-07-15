@@ -1,591 +1,480 @@
 # ⭐ STILE
 
-**Structural Integration Leverage — Correctness Without Communication**
+## Structural Integration Leverage
 
-The ~1.37 KB reference kernel that demonstrates:
-delivery correctness does not require communication, acknowledgements, retries, or network dependency.
+### Delivery-State Resolution Without Transport as the Sole Authority
 
 ![STILE](https://img.shields.io/badge/STILE-Structural%20Integration%20Leverage-black)
-![Alignment-Based](https://img.shields.io/badge/Correctness-Alignment%20Based-purple)
-![Structure-Based](https://img.shields.io/badge/Correctness-Structure%20Based-purple)
-![Deterministic](https://img.shields.io/badge/Deterministic-Convergence-green)
-![No-Communication](https://img.shields.io/badge/Communication-Not%20Required-lightgrey)
-![No-Retries](https://img.shields.io/badge/Retries-Not%20Required-lightgrey)
-![No-ACK](https://img.shields.io/badge/Acknowledgement-Not%20Required-lightgrey)
-![No-Network](https://img.shields.io/badge/Network-Not%20Required-lightgrey)
-![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
-![Open-Standard](https://img.shields.io/badge/Reference-Open%20Standard-blue)
+![Version](https://img.shields.io/badge/Version-2.1-blue)
+![Profile](https://img.shields.io/badge/Profile-STILE--DELIVERY--ADMISSION--1--D01-purple)
+![Python](https://img.shields.io/badge/Python-25%2F25%20PASS-green)
+![Browser](https://img.shields.io/badge/Browser-25%2F25%20PASS-green)
+![Full Audit](https://img.shields.io/badge/Full%20Audit-30%2F30%20PASS-green)
+![Cross Runtime](https://img.shields.io/badge/Cross--Runtime%20Parity-PASS-green)
+![Deterministic](https://img.shields.io/badge/Resolution-Deterministic-purple)
+![Self Contained](https://img.shields.io/badge/Browser-Self--Contained-orange)
+
+STILE is a bounded deterministic reference model for resolving structural delivery admission while keeping transport observation and consumption observation separate.
+
+The governing relation is:
+
+`structural_delivery_state = resolve(declared_delivery_structure, versioned_rules)`
+
+The core separation is:
+
+`transport_state != structural_delivery_state != consumption_state`
+
+Transport may establish movement.
+
+Structure establishes bounded admissibility.
+
+Consumption may establish use.
+
+None of these lanes is allowed to impersonate the others.
 
 ---
 
-STILE removes communication as a dependency for correctness.
+## ⚡ Core Guarantee
 
-A message does not need to be sent, confirmed, retried, or acknowledged to be considered delivered.
+Within the declared STILE profile:
 
-Delivery is admitted only when structure is aligned.
+`same declared structure + same versioned rules -> same structural decision`
 
-Deterministic • Structure-Based • No Communication • No Retries • No Acknowledgements • No Network
+The current reference profile is:
 
----
+`STILE-DELIVERY-ADMISSION-1-D01`
 
-## ⚡ The Claim
+The current schema is:
 
-A valid result can be determined without communication, interaction, or transmission — when structure is sufficient.
+`2.1.0`
 
----
+The reference implementation resolves three structural states:
 
-## 🧱 The Unifying Principle
+`complete + consistent -> RESOLVED + ADMITTED`
 
-`correctness = resolve(structure)`
+`incomplete -> INCOMPLETE + ABSTAIN`
 
-For STILE:
+`conflicting -> CONFLICT + ABSTAIN`
 
-`message_delivered iff structure_aligned`  
-`delivery_visible iff structure_aligned`
-
-If correctness remains after removing a dependency, that dependency was never fundamental.
+STILE does not force an admission when required structure is missing or conflicting.
 
 ---
 
-## 🧩 Structural Collapse Guarantee
+## 🧱 What STILE Resolves
 
-This framework does not modify classical outcomes.
-It preserves them.
+The current profile evaluates declared structural fields for:
 
-`phi((m, a, s)) = m`
+- sender identity;
+- receiver identity;
+- message identity;
+- expected message identity;
+- payload identity;
+- expected payload identity;
+- sender intent;
+- receiver expectation;
+- context identity;
+- explicit conflict state.
 
-Where:
-- `m` = classical result  
-- `a` = alignment  
-- `s` = structural state  
+The structural decision is separate from:
 
-`outcome_visible iff structure_mature`
+- transport observations such as `SENT`, `RECEIVED`, or `FAILED`;
+- consumption observations such as `UNREAD`, `CONSUMED`, or `REJECTED`.
 
-No new result is created.  
-No approximation is introduced.  
-The system collapses to the same classical truth.
-
----
-
-## 🌍 Civilizational Impact
-
-From uncertainty to structural certainty.
-
-Traditional systems inherit:  
-Uncertainty • Delay • Ambiguity  
-
-STILE systems inherit:  
-Certainty • Determinism • Clarity  
-
-This is not an optimization.  
-This is the removal of a non-fundamental dependency.
-
-Delivery was never created by communication.  
-It is determined by structure.
-
-Communication may carry structure.  
-It does not create correctness.
-
-**Scope Note:**  
-This reference model demonstrates the principle.  
-Real-world systems may still use transport layers —  
-they simply cease to be the source of truth.
+This allows the structural admission decision to remain stable when later operational observations change.
 
 ---
 
-## ⚠️ Clarification — Machine-Level Evaluation
+## 🧭 Three Independent Lanes
 
-This reference kernel runs as a minimal Python program and may perform internal evaluation.
+### Structural Admission
 
-However, this evaluation is **NOT communication** and is **NOT the source of correctness**.
+Determines whether the declared delivery structure is complete and consistent.
 
-Correctness is determined solely by structural sufficiency —  
-not by network interaction, acknowledgements, retries, or message exchange.
+Possible outcomes:
 
-Evaluation functions only as a resolution substrate, not as a source of correctness.
+`RESOLVED + ADMITTED`
 
----
+`INCOMPLETE + ABSTAIN`
 
-## 🧠 Practical Interpretation
+`CONFLICT + ABSTAIN`
 
-Use existing systems to transport messages.
+### Transport Observation
 
-Use STILE to resolve and validate when delivery is structurally true.
+Records operational movement without rewriting structural admission.
 
----
+Examples:
 
-## 🧱 Layer Separation (Critical)
+`UNKNOWN`
 
-**Structure Layer:**  
-determines delivery truth  
+`NOT_OBSERVED`
 
-**Representation Layer:**  
-messages, APIs, transport (optional)  
+`SENT`
 
-**Execution Layer:**  
-network, retries, acknowledgements (optional)  
+`RECEIVED`
 
-STILE operates only at the Structure Layer.
+`FAILED`
 
-Transport may exist.  
-It is not the source of correctness.
+### Consumption Observation
 
----
+Records later use without rewriting structural admission.
 
-## 🔍 Truth vs Transport
+Examples:
 
-STILE determines delivery truth, not transmission.
+`UNKNOWN`
 
-It establishes whether a message is structurally delivered.
+`UNREAD`
 
-Real-world transport, messaging, or communication may still belong to execution layers.
+`CONSUMED`
 
-Delivery is not a transport event.  
-Delivery is a structural admission.
+`REJECTED`
 
-Delivery is not triggered by sending.  
-It is admitted by structure.
+The central invariant is:
 
-Silence is not failure.  
-Silence is a valid structural state.
+`transport-only change -> same structure_hash + same decision_hash + different observation_hash`
+
+`consumption-only change -> same structure_hash + same decision_hash + different observation_hash`
 
 ---
 
-## 🔥 Break This STILE (Immediate Challenge)
+## 🔐 Three Evidence Identities
 
-If communication is required for correctness, this invariant must fail:
+STILE v2.1 produces three SHA-256 identities.
 
-`same structure -> same delivery state -> same certificate`
+### `structure_hash`
 
-More precisely:
+Identifies the declared structural core under the named profile and schema.
 
-S1 = S2  
-DeliveryState1 != DeliveryState2 OR Certificate1 != Certificate2  
+Transport and consumption observations are outside this hash.
 
-Or demonstrate:
+### `decision_hash`
 
-incomplete structure -> forced delivery  
-conflicting structure -> arbitrary delivery  
-reordered identical structure -> different outcome  
+Identifies:
 
-If none occur, communication is not fundamental.
+- the profile;
+- the schema;
+- the structure hash;
+- the resolution;
+- the delivery admission;
+- the reason codes.
 
----
+### `observation_hash`
 
-## 🌍 A World Built on Communication
+Binds transport and consumption observations to the structural decision without rewriting that decision.
 
-For decades, systems have been built on dependencies:
+This separation makes it possible to distinguish:
 
-communication  
-acknowledgements  
-retries  
-delivery pipelines  
-network infrastructure  
+`what was declared`
 
-Each treated as essential.
+`what structural decision followed`
 
----
-
-## 🔄 The Shift
-
-Across domains:
-
-correctness does not depend on the mechanism we assumed it did  
-
-It is preserved by:
-
-**structure**
+`what was later observed`
 
 ---
 
-## 🧱 Dependency Elimination Framework
+## ⚡ Try STILE v2.1
 
-Domain        | Removed Dependency            | What Preserves Correctness
---------------|-------------------------------|----------------------------
-Messaging     | Network / ACKs / Retries      | Structure
-Finance       | Continuous connectivity       | Structure (STINT)
-Time          | Clocks                        | Structure (STIME)
-Computation   | Execution                     | Structure (SLANG)
-AI / Agents   | Constant inference            | Structure
-Integration   | Communication / Coordination  | Structure
+Run the Python reference:
 
-Each row removes a dependency — yet correctness remains intact.
-
-Nothing is replaced.  
-Nothing is approximated.  
-Only the dependency is eliminated.
-
----
-
-## ⚡ The One-Line Breakthrough
-
-Delivery does not require communication — when structure is sufficient.
-
----
-
-## ⚡ The Core Truth
-
-`delivery != transmission`  
-`delivery = resolve(structure)`
-
-Communication may carry delivery.  
-It does not create it.
-
----
-
-## ⚡ Structural Absence Principle
-
-If structure is not complete and consistent:  
-delivery does not exist.
-
-This is not delay.  
-This is not failure.  
-
-This is structural absence.
-
-`incomplete -> no delivery`  
-`conflict -> no delivery`  
-`absence = structural truth`
-
----
-
-## ⚡ Try it in 30 seconds
-
-**Demo 1 — Core STILE proof**
-
-```
-python demo/stile_message_delivery.py
+```text
+python reference/stile_delivery_admission_v2_1.py
 ```
 
-**Optional Demo 2 — OTP without sending**
+Expected final result:
 
+```text
+Conformance: 25/25 PASS
 ```
-python demo_otp/otp_without_sending.py
+
+Run the Python conformance report only:
+
+```text
+python reference/stile_delivery_admission_v2_1.py --self-test
 ```
+
+Open the browser reference:
+
+[Open the STILE v2.1 Browser Reference](reference/STILE_Delivery_Admission_Browser_Demo_v2_1.html)
+
+The browser reference is self-contained and runs without an API, server-side resolver, external JavaScript library, or external stylesheet.
+
+---
+
+## 🧪 Demonstration Cases
+
+| Case | Resolution | Delivery Admission | Transport | Consumption | Reason |
+|---|---|---|---|---|---|
+| Aligned | RESOLVED | ADMITTED | NOT_OBSERVED | UNKNOWN | NONE |
+| Transport observed | RESOLVED | ADMITTED | RECEIVED | UNKNOWN | NONE |
+| Consumed | RESOLVED | ADMITTED | RECEIVED | CONSUMED | NONE |
+| Incomplete | INCOMPLETE | ABSTAIN | NOT_OBSERVED | UNKNOWN | MISSING_RECEIVER_ID |
+| Identity conflict | CONFLICT | ABSTAIN | NOT_OBSERVED | UNKNOWN | MESSAGE_ID_MISMATCH |
+| Payload conflict | CONFLICT | ABSTAIN | NOT_OBSERVED | UNKNOWN | PAYLOAD_HASH_MISMATCH |
+| Intent conflict | CONFLICT | ABSTAIN | NOT_OBSERVED | UNKNOWN | INTENT_EXPECTATION_MISMATCH |
+| Explicit conflict | CONFLICT | ABSTAIN | NOT_OBSERVED | UNKNOWN | EXPLICIT_CONFLICT |
+
+The first three cases demonstrate that transport and consumption may change while the structural admission decision remains unchanged.
+
+The remaining cases demonstrate explicit refusal to admit incomplete or conflicting structure.
 
 ---
 
 ## 🔍 What You Will Observe
 
-deterministic delivery resolution  
-no communication dependency  
-no retries  
-no acknowledgements  
-incomplete structure produces no delivery  
-conflicting structure produces no delivery  
-identical structure produces identical delivery  
+- deterministic structural resolution;
+- explicit separation of admission, transport, and consumption;
+- incomplete structure produces `INCOMPLETE + ABSTAIN`;
+- conflicting structure produces `CONFLICT + ABSTAIN`;
+- repeated evaluation of the same declared structure produces the same structural decision;
+- property order does not change the decision;
+- transport-only changes do not change the structural decision hash;
+- consumption-only changes do not change the structural decision hash;
+- Python and browser reference implementations agree on baseline and Unicode hash fixtures;
+- unsupported observation values are surfaced explicitly as `INVALID`.
 
 ---
 
-## 🧩 Reference Demonstration
+## 🔥 Break This STILE
 
-**Scenario 1 — Valid Alignment**  
-→ delivery appears  
+The current profile should be considered broken if any of the following can be demonstrated within the declared model:
 
-**Scenario 2 — Misalignment**  
-→ message_delivered does not appear  
+`same declared structure + same versioned rules -> different structural decision`
 
-**Scenario 3 — Conflict Present**  
-→ message_delivered does not appear  
+`same declared structure + same versioned rules -> different decision_hash`
 
-**Scenario 4 — Incomplete Structure**  
-→ ABSTAIN (safe silence)
+`transport-only change -> different structure_hash`
 
----
+`transport-only change -> different decision_hash`
 
-## 🔹 What this output represents
+`consumption-only change -> different structure_hash`
 
-• message_delivered appears only when structure is aligned  
-• structure_aligned = True governs visibility  
-• sigma is deterministic  
+`consumption-only change -> different decision_hash`
 
-Traditionally dependent on communication.  
-Here: purely structural.
+`incomplete structure -> ADMITTED`
 
----
+`conflicting structure -> ADMITTED`
 
-## 🧭 Visual Overview
+`same canonical fixture -> different Python and browser hashes`
 
-![STILE Message Delivery](docs/STILE-Message-Delivery.png)
-
----
-
-## 🧭 Framework & References
-
-**Docs**
-- [Quickstart](docs/Quickstart.md)  
-- [FAQ](docs/FAQ.md)  
-- [Proof Sketch](docs/Proof-Sketch.md)  
-- [STILE Concept Diagram](docs/STILE-Message-Delivery.png)  
-- [STILE Structural Flow Diagram](docs/STILE-Message-Mermaid-Diagram.png)  
-
-**Framework**
-
-- [STILE Framework Document](docs/STILE_v1.2.pdf)
-- [STILE Architecture Notes](docs/STILE-Architecture-Notes.md)
-- [Dependency Elimination Framework](docs/Dependency-Elimination-Framework.png)
-- [Shunyaya Structural Stack](docs/Shunyaya-Structural-Stack.png)
-
-Part of the Dependency Elimination Framework — where removing assumed dependencies reveals that correctness is preserved by structure alone.
-
----
-
-## **Demo**
-- [demo/stile_message_delivery.py](demo/stile_message_delivery.py)
-- [demo/stile_message_delivery.html](demo/stile_message_delivery.html)
-
-Optional extension:
-- [demo_otp/otp_without_sending.py](demo_otp/otp_without_sending.py)  
-  Demonstrates OTP verification without SMS, email, or network transport.
-
----
-
-## **Verification**
-- [VERIFY/VERIFY.txt](VERIFY/VERIFY.txt)  
-- [VERIFY/FREEZE_DEMO_SHA256.txt](VERIFY/FREEZE_DEMO_SHA256.txt)
-
----
-
-## **Repository**
-- [demo/](demo/) — kernel  
-- [docs/](docs/) — explanation  
-- [VERIFY/](VERIFY/) — reproducibility  
-
----
-
-## ⚡ The Core Structural Model
-
-`message_delivered iff structure_aligned`
-
-`structure_aligned = complete AND consistent`
-
-`resolve(structure) ->`
-
-RESOLVED   if structure_aligned  
-ABSTAIN    if structure is incomplete  
-CONFLICT   if structure is inconsistent  
-
----
-
-## ⚠️ Read This Carefully
-
-This is not:
-- a messaging protocol
-- a communication system
-- a retry optimization
-- a network replacement
-
-Communication is not required for correctness.
-
-Scope Note:  
-The reference kernel performs internal evaluation.  
-This evaluation is not communication and is not the source of correctness.  
-Correctness is determined solely by structural sufficiency.
-
----
-
-## 🔥 What This Proves
-
-This kernel proves that delivery correctness does not require:
-
-communication  
-retries  
-acknowledgements  
-network  
-message queues  
-
----
-
-## 🔥 Structural Resolution Model
-
-`resolve(structure) ->`  
-RESOLVED  
-ABSTAIN  
-CONFLICT  
+The verification package is designed to test these conditions directly.
 
 ---
 
 ## 🛡 Structural Safety Model
 
-`incomplete -> no forced delivery`  
-`conflicting -> no arbitrary delivery`  
-`complete -> deterministic delivery`
+STILE does not force a positive decision when its declared structural requirements are not satisfied.
+
+`incomplete -> INCOMPLETE + ABSTAIN`
+
+`conflicting -> CONFLICT + ABSTAIN`
+
+`complete + consistent -> RESOLVED + ADMITTED`
+
+This is a bounded admission model.
+
+It is not a claim that every real-world delivery question can be reduced to these fields.
 
 ---
 
-## 🔐 Structural Certificate
+## 🌐 Truth, Movement, and Use
 
-`same structure -> same delivery -> same certificate`
+STILE separates three questions that are often collapsed into one.
 
----
+### Did the data move?
 
-## 🔥 Deterministic Guarantee
+That belongs to transport observation.
 
-`same structure -> same delivery -> same certificate`
+### Is the declared delivery structure admissible under the current profile?
 
-`different structure -> different admissibility outcome`
+That belongs to structural admission.
 
-No communication, retries, acknowledgements, or sequence  
-can alter this invariant.
+### Was the content read, consumed, rejected, or otherwise used?
 
----
+That belongs to consumption observation.
 
-## ⚖️ What This Proves / Does Not Prove
+The current model therefore does not use physical transmission as the sole authority over structural admission.
 
-**Proves**
-delivery admissibility from structure  
-deterministic outcomes  
-communication independence  
-
-**Does NOT Prove**
-message transport  
-network elimination  
-latency optimization  
+It also does not use later consumption as the sole authority over structural admission.
 
 ---
 
-## 📊 Comparison
+## ⚠️ Claim Boundary
 
-Model                  | Communication Required | Structure-Based | Deterministic
------------------------|------------------------|-----------------|--------------
-Traditional Messaging  | Yes                    | No              | Conditional
-STILE                  | No                     | Yes             | Yes
+STILE v2.1 demonstrates a bounded deterministic structural admission model.
 
----
+It does not claim that:
 
-## 🔁 Deterministic Guarantees
+- physical transmission is unnecessary for systems that must physically transmit data;
+- structural admission proves that bytes reached a remote endpoint;
+- structural admission proves that a recipient read, consumed, or acted on content;
+- messaging protocols, networks, acknowledgements, retries, queues, or transport systems are universally unnecessary;
+- the current profile is a universal delivery oracle.
 
-`S1 = S2 -> DeliveryState1 = DeliveryState2 -> Certificate1 = Certificate2`
+The reference claim is narrower:
 
-Order Independence  
-Idempotence  
+`transport observation is not the sole authority over the bounded structural admission decision`
 
----
+and:
 
-## 🧠 Critical Insight
+`consumption observation is not the sole authority over the bounded structural admission decision`
 
-System does not:
+Within the declared profile:
 
-communicate  
-retry  
-acknowledge  
-
-It resolves structure.
+`same declared structure + same versioned rules -> same structural decision`
 
 ---
 
-## 🧠 Structural Truth
+## 📊 Resolution Summary
 
-A message may be sent.  
+| Structural Condition | Resolution | Delivery Admission |
+|---|---|---|
+| Complete and consistent | RESOLVED | ADMITTED |
+| Incomplete | INCOMPLETE | ABSTAIN |
+| Conflicting | CONFLICT | ABSTAIN |
 
-But structural delivery may not exist.
-
-The system does not guess.  
-The system does not retry.  
-
-It simply refuses to grant delivery  
-to what structure does not support.
-
-`absence != failure`  
-`absence = structural truth`
+Transport and consumption observations remain independent of this structural classification.
 
 ---
 
-## 🌌 Why This Is Bigger Than It Looks
+## 🔁 Deterministic Properties
 
-Minimal proof that:
+The current reference implementation verifies:
 
-delivery correctness does not require communication  
-outcomes do not depend on interaction  
-alignment reveals truth  
+`same structure -> same decision`
 
----
+`same canonical content in different key order -> same decision`
 
-## 🧾 Structural Lineage
+`transport-only change -> same structural decision`
 
-SLANG-Computation → correctness without execution  
-STIME → correctness without time  
-STINT-Money → correctness without connectivity  
-STRAL-Path → correctness without traversal  
-STILE → correctness without communication  
+`consumption-only change -> same structural decision`
 
----
+`structural change -> structurally bound hashes may change`
 
-## 🧪 Try it yourself
+The model is version-bound:
 
-Copy the demo kernel and run it locally.
+`profile + schema + declared structure -> structure_hash`
 
-Then test the same pattern across your own domain:
-
-APIs & microservices  
-Offline-first applications  
-Disaster-response coordination  
-Financial settlement  
-Healthcare record exchange  
-
-Change one structural condition at a time:
-
-intent mismatch -> no delivery  
-missing identity -> no delivery  
-conflict present -> no delivery  
-pending context -> ABSTAIN  
-aligned structure -> delivered  
-
-The goal is not to send a message.
-
-The goal is to verify whether delivery becomes structurally admissible.
+A schema change therefore intentionally changes the associated evidence identity.
 
 ---
 
-## 📜 License
+## 🌍 Practical Interpretation
 
-See: [LICENSE](LICENSE)
+STILE can sit alongside existing transport and messaging systems.
 
-**Reference Implementation (This Repository):**
+A transport system may record movement.
 
-This tiny kernel is the official minimal example of the STILE model.  
-It demonstrates the core principle in its simplest form.
+A receiving system may record consumption.
 
-Released as an **Open Standard** — free to use, study, implement, extend, and deploy.
+STILE resolves a separate question:
 
-**Architecture and Documentation:**  
-CC BY-NC 4.0
+`is the declared delivery structure admissible under the named profile and versioned rules?`
+
+This separation can be useful wherever systems need deterministic admission decisions without allowing one operational signal to become the sole authority over the entire state.
+
+Potential areas of exploration include:
+
+- APIs and service integration;
+- offline-first workflows;
+- distributed record exchange;
+- financial coordination;
+- disaster-response information systems;
+- healthcare data workflows;
+- IoT state exchange;
+- multi-party structural admission.
+
+These are application directions, not claims that the current reference profile already solves every domain-specific requirement.
 
 ---
 
-## 🔭 Roadmap (Exploratory)
+## ✅ Verification Status
 
-| Milestone                        | Description                                                   | Status     |
-|---------------------------------|---------------------------------------------------------------|------------|
-| Structural alignment classification | Auto-detect complete, incomplete, and conflicting structure | Planned    |
-| Multi-party alignment           | Extend structural resolution beyond two-party systems          | Planned    |
-| Canonical certificates          | Normalized delivery identity across representations            | Planned    |
-| OTP without sending             | Prove possession of a code without transmission                | Prototype  |
-| Language ports                  | Go, Rust, and TypeScript reference kernels                    | Open       |
-| Domain packs                    | Pre-built structural models for finance, healthcare, and IoT  | Open       |
+STILE v2.1 has the following reference verification results:
 
-**Next milestone target:**  
-v1.2 — Multi-party alignment + canonical certificate specification
+`Python conformance -> 25/25 PASS`
+
+`Browser built-in conformance -> 25/25 PASS`
+
+`Full browser audit -> 30/30 PASS`
+
+`Visible demonstration cases -> 8/8 expected`
+
+`Baseline cross-runtime hash parity -> PASS`
+
+`Unicode cross-runtime hash parity -> PASS`
+
+`Invalid observation handling parity -> PASS`
+
+For complete verification steps and expected hashes:
+
+[Read the STILE v2.1 Verification Guide](VERIFY/VERIFY.md)
+
+For the frozen SHA-256 identities of the reference files:
+
+[View the STILE v2.1 SHA-256 Freeze](VERIFY/FREEZE_DEMO_SHA256.txt)
+
+---
+
+## 🔗 Active Reference Files
+
+- [STILE v2.1 Python Reference](reference/stile_delivery_admission_v2_1.py)
+- [STILE v2.1 Browser Reference](reference/STILE_Delivery_Admission_Browser_Demo_v2_1.html)
+- [STILE v2.1 Verification Guide](VERIFY/VERIFY.md)
+- [STILE v2.1 SHA-256 Freeze](VERIFY/FREEZE_DEMO_SHA256.txt)
+
+---
+
+## 🧭 Framework Context
+
+STILE is developed within the Shunyaya Framework.
+
+Its current contribution is a specific structural separation:
+
+`transport establishes movement`
+
+`structure establishes admissibility`
+
+`consumption establishes use`
+
+The purpose is not to erase transport, networking, or execution.
+
+The purpose is to prevent those operational mechanisms from automatically becoming the sole authority over a bounded structural admission decision.
 
 ---
 
 ## 🔗 Related Structural References
 
-- [ORL](https://github.com/OMPSHUNYAYA/Orderless-Ledger) — ledger correctness from structure without ordering
-- [STOCRS](https://github.com/OMPSHUNYAYA/STOCRS) — computation from structure without execution
-- [STIME](https://github.com/OMPSHUNYAYA/Structural-Time) — time from valid structural transitions
-- [SSUM-Time](https://github.com/OMPSHUNYAYA/SSUM-Time) — structural clock for time reconstruction and recovery
-- [STRAL-Path](https://github.com/OMPSHUNYAYA/STRAL-Path) — path correctness from structure without traversal, graph search, or ordered exploration
-- [SLANG-Computation](https://github.com/OMPSHUNYAYA/SLANG-Computation) — computation correctness from structure without execution flow, control flow, or prescribed sequencing
-- [STINT-Money](https://github.com/OMPSHUNYAYA/STINT-Money) — financial correctness from structure without continuous connectivity, synchronization, or ordered communication
+- [ORL](https://github.com/OMPSHUNYAYA/Orderless-Ledger) — deterministic ledger classification without arrival order or clock metadata as decision authority
+- [STOCRS](https://github.com/OMPSHUNYAYA/STOCRS) — structural computation research
+- [STIME](https://github.com/OMPSHUNYAYA/Structural-Time) — structural progression without physical clocks as the sole time authority
+- [SSUM-Time](https://github.com/OMPSHUNYAYA/SSUM-Time) — structural time reconstruction and recovery
+- [STRAL-Path](https://github.com/OMPSHUNYAYA/STRAL-Path) — structural path research
+- [SLANG-Computation](https://github.com/OMPSHUNYAYA/SLANG-Computation) — structural computation and resolution
+- [STINT-Money](https://github.com/OMPSHUNYAYA/STINT-Money) — structural settlement-state research
 
 ---
 
-### 🧭 Final Statement
+## 📜 **License**
 
-Communication did not create delivery correctness.  
-Transmission did not create delivery correctness.  
-Interaction did not create delivery correctness.  
+See: [LICENSE](LICENSE)
 
-**Delivery is not created by communication.**  
-**It is determined by structure.**
+The repository is a publicly available reference implementation under its stated license terms.
+
+Architecture documentation is subject to the licensing terms declared in the repository, including CC BY-NC 4.0 where stated.
+
+The repository does not claim recognition as a formal technical standard.
+
+---
+
+### Final Statement
+
+A transport event and a structural admission decision are not the same thing.
+
+A consumption event and a structural admission decision are not the same thing.
+
+STILE v2.1 keeps these states separate and resolves structural admission deterministically under a declared profile and schema.
+
+`transport establishes movement`
+
+`structure establishes admissibility`
+
+`consumption establishes use`
