@@ -5,16 +5,19 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   verify:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -28,33 +31,56 @@ jobs:
           required_paths = [
               "README.md",
               "LICENSE",
-              "demo/stile_message_delivery.py",
-              "demo/stile_message_delivery.html",
-              "demo_otp/otp_without_sending.py",
-              "docs/Quickstart.md",
+              "reference/stile_delivery_admission_v2_1.py",
+              "reference/STILE_Delivery_Admission_Browser_Demo_v2_1.html",
               "docs/FAQ.md",
               "docs/Proof-Sketch.md",
+              "docs/Quickstart.md",
               "docs/STILE-Architecture-Notes.md",
-              "docs/STILE_v1.2.pdf",
               "docs/STILE-Message-Delivery.png",
-              "docs/STILE-Message-Mermaid-Diagram.png",
               "docs/Dependency-Elimination-Framework.png",
               "docs/Shunyaya-Structural-Stack.png",
-              "VERIFY/VERIFY.txt",
+              "VERIFY/VERIFY.md",
               "VERIFY/FREEZE_DEMO_SHA256.txt",
           ]
 
-          missing = [p for p in required_paths if not Path(p).exists()]
+          missing = [p for p in required_paths if not Path(p).is_file()]
+
           if missing:
               print("ERROR: Missing required repository files:")
-              for p in missing:
-                  print(" -", p)
+              for path in missing:
+                  print(" -", path)
               sys.exit(1)
 
           print("Required repository files verified.")
           PY
 
-      - name: Verify frozen SHA256 hashes if present
+      - name: Verify removed legacy paths are absent
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import sys
+
+          removed_paths = [
+              "demo",
+              "demo_otp",
+              "docs/STILE_v1.2.pdf",
+              "docs/STILE-Message-Mermaid-Diagram.png",
+          ]
+
+          present = [p for p in removed_paths if Path(p).exists()]
+
+          if present:
+              print("ERROR: Removed legacy paths are still present:")
+              for path in present:
+                  print(" -", path)
+              sys.exit(1)
+
+          print("Legacy path absence verified.")
+          PY
+
+      - name: Verify frozen SHA256 hashes
         shell: bash
         run: |
           python - <<'PY'
@@ -65,34 +91,48 @@ jobs:
 
           freeze_path = Path("VERIFY/FREEZE_DEMO_SHA256.txt")
 
-          targets = {
-              "demo/stile_message_delivery.py": Path("demo/stile_message_delivery.py"),
-              "demo/stile_message_delivery.html": Path("demo/stile_message_delivery.html"),
-              "demo_otp/otp_without_sending.py": Path("demo_otp/otp_without_sending.py"),
-          }
+          targets = [
+              Path("reference/STILE_Delivery_Admission_Browser_Demo_v2_1.html"),
+              Path("reference/stile_delivery_admission_v2_1.py"),
+          ]
 
-          freeze_text = freeze_path.read_text(encoding="utf-8")
+          text = freeze_path.read_text(encoding="utf-8")
+
+          entries = {}
+          pending_path = None
+
+          for raw_line in text.splitlines():
+              line = raw_line.strip()
+
+              if not line:
+                  continue
+
+              hash_match = re.fullmatch(
+                  r"SHA256:\s*([0-9a-fA-F]{64})",
+                  line,
+              )
+
+              if hash_match and pending_path is not None:
+                  normalized_path = pending_path.replace("\\", "/")
+                  entries[normalized_path] = hash_match.group(1).lower()
+                  pending_path = None
+                  continue
+
+              if line.startswith("reference/") or line.startswith("reference\\"):
+                  pending_path = line
 
           def sha256_file(path: Path) -> str:
               return hashlib.sha256(path.read_bytes()).hexdigest()
 
-          checked = 0
+          for path in targets:
+              label = path.as_posix()
 
-          for label, path in targets.items():
-              label_variants = [
-                  re.escape(label),
-                  re.escape(label.replace("/", "\\")),
-              ]
+              if label not in entries:
+                  print(f"ERROR: No frozen SHA256 entry found for {label}")
+                  sys.exit(1)
 
-              pattern = rf"({'|'.join(label_variants)})\s*SHA256:\s*([0-9a-f]{{64}})"
-              match = re.search(pattern, freeze_text, re.IGNORECASE)
-
-              if not match:
-                  print(f"WARNING: No frozen SHA256 entry found for {label}; skipping hash check.")
-                  continue
-
-              expected = match.group(2).lower()
-              actual = sha256_file(path).lower()
+              expected = entries[label]
+              actual = sha256_file(path)
 
               if actual != expected:
                   print(f"ERROR: Hash mismatch for {label}")
@@ -101,167 +141,179 @@ jobs:
                   sys.exit(1)
 
               print(f"Hash verified for {label}: {actual}")
-              checked += 1
-
-          if checked == 0:
-              print("WARNING: No hash entries matched. File existence and runtime checks will still run.")
 
           print("Frozen SHA256 verification completed.")
           PY
 
-      - name: Run STILE Python demo
+      - name: Run STILE Python reference
         shell: bash
         run: |
-          python demo/stile_message_delivery.py
+          python reference/stile_delivery_admission_v2_1.py
 
-      - name: Verify STILE Python demo output markers
+      - name: Verify STILE Python reference output
         shell: bash
         run: |
           python - <<'PY'
           import subprocess
           import sys
 
-          cmd = [sys.executable, "demo/stile_message_delivery.py"]
-          result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-          out = result.stdout
-
-          required_markers = [
-              "message_delivered",
-              "structure_aligned",
-              "STRUCTURALLY_DELIVERED",
-              "sigma",
+          cmd = [
+              sys.executable,
+              "reference/stile_delivery_admission_v2_1.py",
           ]
 
-          missing = [marker for marker in required_markers if marker not in out]
-          if missing:
-              print("ERROR: STILE Python demo output missing expected markers:")
-              for marker in missing:
-                  print(" -", marker)
-              print("\nFull output:\n")
-              print(out)
-              sys.exit(1)
+          result = subprocess.run(
+              cmd,
+              capture_output=True,
+              text=True,
+              check=True,
+          )
 
-          print("STILE Python demo output markers verified.")
-          PY
-
-      - name: Run STILE Python demo twice and verify determinism
-        shell: bash
-        run: |
-          python - <<'PY'
-          import subprocess
-          import sys
-
-          cmd = [sys.executable, "demo/stile_message_delivery.py"]
-
-          result1 = subprocess.run(cmd, capture_output=True, text=True, check=True)
-          result2 = subprocess.run(cmd, capture_output=True, text=True, check=True)
-
-          if result1.stdout != result2.stdout:
-              print("ERROR: Non-deterministic STILE Python demo output")
-              sys.exit(1)
-
-          print("Deterministic STILE Python output verified.")
-          PY
-
-      - name: Run OTP optional demo
-        shell: bash
-        run: |
-          python demo_otp/otp_without_sending.py
-
-      - name: Verify OTP optional demo output markers
-        shell: bash
-        run: |
-          python - <<'PY'
-          import subprocess
-          import sys
-
-          cmd = [sys.executable, "demo_otp/otp_without_sending.py"]
-          result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-          out = result.stdout
+          output = result.stdout
 
           required_markers = [
-              "OTP Without Sending",
-              "Valid OTP structure",
-              "Wrong OTP structure",
-              "Expired OTP window",
-              "Explicit conflict",
-              "Missing user_id",
-              "resolution:    RESOLVED",
-              "resolution:    CONFLICT",
-              "resolution:    ABSTAIN",
-              "same structure -> same sigma: True",
-              "No SMS. No email. No callback. No network dependency.",
+              "RESOLVED",
+              "ADMITTED",
+              "INCOMPLETE",
+              "ABSTAIN",
+              "CONFLICT",
+              "Conformance: 25/25 PASS",
           ]
 
-          missing = [marker for marker in required_markers if marker not in out]
+          missing = [
+              marker
+              for marker in required_markers
+              if marker not in output
+          ]
+
           if missing:
-              print("ERROR: OTP demo output missing expected markers:")
+              print("ERROR: Python reference output is missing expected markers:")
               for marker in missing:
                   print(" -", marker)
+
               print("\nFull output:\n")
-              print(out)
+              print(output)
               sys.exit(1)
 
-          print("OTP optional demo output markers verified.")
+          print("STILE Python reference output verified.")
           PY
 
-      - name: Verify HTML demo contains expected structural hooks
+      - name: Run STILE Python conformance self-test
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import subprocess
+          import sys
+
+          cmd = [
+              sys.executable,
+              "reference/stile_delivery_admission_v2_1.py",
+              "--self-test",
+          ]
+
+          result = subprocess.run(
+              cmd,
+              capture_output=True,
+              text=True,
+              check=True,
+          )
+
+          try:
+              report = json.loads(result.stdout)
+          except json.JSONDecodeError:
+              print("ERROR: Self-test did not return valid JSON.")
+              print(result.stdout)
+              sys.exit(1)
+
+          expected = {
+              "status": "PASS",
+              "passed": 25,
+              "total": 25,
+          }
+
+          for key, value in expected.items():
+              if report.get(key) != value:
+                  print(
+                      f"ERROR: Self-test field {key!r} "
+                      f"expected {value!r}, got {report.get(key)!r}"
+                  )
+                  sys.exit(1)
+
+          print("STILE Python conformance verified: 25/25 PASS.")
+          PY
+
+      - name: Verify deterministic Python output
+        shell: bash
+        run: |
+          python - <<'PY'
+          import subprocess
+          import sys
+
+          cmd = [
+              sys.executable,
+              "reference/stile_delivery_admission_v2_1.py",
+          ]
+
+          first = subprocess.run(
+              cmd,
+              capture_output=True,
+              text=True,
+              check=True,
+          )
+
+          second = subprocess.run(
+              cmd,
+              capture_output=True,
+              text=True,
+              check=True,
+          )
+
+          if first.stdout != second.stdout:
+              print("ERROR: Python reference output changed between identical runs.")
+              sys.exit(1)
+
+          print("Deterministic Python output verified.")
+          PY
+
+      - name: Verify active repository references
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
           import sys
 
-          html_path = Path("demo/stile_message_delivery.html")
-          text = html_path.read_text(encoding="utf-8")
-
-          required_snippets = [
-              "STILE MessageDelivery Demo",
-              "Delivery Without Communication",
-              "correctness = structure",
-              "message_delivered iff structure_aligned",
-              "same structure -> same certificate",
-              "Truth vs transport",
-              "Structure Layer",
-              "Transport Layer",
+          files_to_check = [
+              Path("README.md"),
+              Path("docs/Quickstart.md"),
           ]
 
-          missing = [snippet for snippet in required_snippets if snippet not in text]
-          if missing:
-              print("ERROR: HTML demo is missing expected structural hooks:")
-              for snippet in missing:
-                  print(" -", snippet)
-              sys.exit(1)
-
-          print("HTML demo structural hooks verified.")
-          PY
-
-      - name: Verify README contains core STILE claims
-        shell: bash
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import sys
-
-          text = Path("README.md").read_text(encoding="utf-8")
-
-          required_snippets = [
-              "Structural Integration Leverage",
-              "Correctness Without Communication",
-              "correctness = resolve(structure)",
-              "message_delivered iff structure_aligned",
-              "delivery = resolve(structure)",
-              "same structure -> same delivery -> same certificate",
-              "demo/stile_message_delivery.py",
-              "demo_otp/otp_without_sending.py",
+          required_references = [
+              "reference/stile_delivery_admission_v2_1.py",
+              "reference/STILE_Delivery_Admission_Browser_Demo_v2_1.html",
+              "VERIFY/VERIFY.md",
+              "VERIFY/FREEZE_DEMO_SHA256.txt",
           ]
 
-          missing = [snippet for snippet in required_snippets if snippet not in text]
-          if missing:
-              print("ERROR: README.md is missing expected STILE claims:")
-              for snippet in missing:
-                  print(" -", snippet)
+          failed = False
+
+          for path in files_to_check:
+              text = path.read_text(encoding="utf-8")
+
+              missing = [
+                  reference
+                  for reference in required_references
+                  if reference not in text
+              ]
+
+              if missing:
+                  failed = True
+                  print(f"ERROR: {path} is missing active references:")
+                  for reference in missing:
+                      print(" -", reference)
+
+          if failed:
               sys.exit(1)
 
-          print("README core claims verified.")
+          print("Active repository references verified.")
           PY
