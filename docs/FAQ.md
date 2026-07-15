@@ -1,566 +1,772 @@
 # ⭐ FAQ — STILE
 
-**Structural Integration Leverage**  
-**Correctness Without Communication**
+## Structural Integration Leverage
 
-**Deterministic • Structure-Based • Alignment-Based Resolution**
+### Delivery-State Resolution Without Transport as the Sole Authority
 
-**No Communication • No Retries • No Acknowledgements • No Network Dependency**
-
----
-
-## **SECTION A — Purpose & Positioning**
-
-### **A1. What is STILE?**
-
-STILE is a structural resolution model for delivery correctness.
-
-Instead of determining delivery through:
-
-communication  
-network transmission  
-acknowledgements  
-retries  
-delivery pipelines  
-
-STILE determines delivery from:
-
-structure alignment  
-
-A message is not delivered through sending —  
-it is revealed from structure.
+**Deterministic • Structure-Based • Bounded Structural Admission**
 
 ---
 
-### **A2. What does "delivery without communication" mean?**
+## SECTION A — Purpose & Positioning
 
-It means:
+### A1. What is STILE?
 
-delivery correctness does not require:
+STILE is a bounded deterministic reference model for structural delivery admission.
 
-sending messages  
-network confirmation  
-ACKs  
-retries  
-delivery receipts  
+It separates three questions:
 
-Instead:
+`Did the data move?`
 
-`message_delivered iff structure_aligned`
+`Is the declared delivery structure admissible?`
 
----
+`Was the content later used or consumed?`
 
-### **A3. Core idea in one line**
+These are represented as separate lanes:
 
-`delivery correctness = resolve(structure)`
+`transport_state != structural_delivery_state != consumption_state`
 
-`message_delivered iff structure_aligned`
+The current STILE profile resolves structural admission from declared structure and versioned rules.
 
 ---
 
-### **A4. Structural distinction**
+### A2. What is the core idea?
 
-`delivery != transmission`  
-`delivery = resolve(structure)`  
+The governing relation is:
 
-Communication may carry structure.  
-It does not create delivery.
+`structural_delivery_state = resolve(declared_delivery_structure, versioned_rules)`
 
----
+Within the declared profile:
 
-### **A5. The broader shift — Dependency Elimination Framework**
-
-The unifying principle:
-
-`same structure -> same delivery -> same certificate`
-
-If correctness remains after removing a dependency,  
-that dependency was never fundamental.
-
-STILE demonstrates:
-
-delivery correctness does not depend on communication
+`same declared structure + same versioned rules -> same structural decision`
 
 ---
 
-### **A6. Is STILE removing messaging systems?**
+### A3. What does "without transport as the sole authority" mean?
+
+It means that a transport observation such as `SENT`, `RECEIVED`, or `FAILED` does not by itself determine the bounded structural admission decision.
+
+Transport may establish movement.
+
+Structure establishes admissibility under the current profile.
+
+Consumption may establish later use.
+
+The model keeps these roles separate.
+
+---
+
+### A4. Is STILE saying that communication or networking is unnecessary?
 
 No.
 
-It removes communication as a dependency for correctness —  
-not messaging itself.
+Systems that must physically move data still need an appropriate transport mechanism.
 
-Messaging remains:
+STILE does not claim that:
 
-transport layer  
-carrier of structure  
-execution layer  
+- bytes can reach a remote endpoint without transmission;
+- networking is universally unnecessary;
+- acknowledgements or retries are never useful;
+- a structural admission proves physical receipt.
+
+The narrower claim is:
+
+`transport observation is not the sole authority over the bounded structural admission decision`
 
 ---
 
-### **A7. Is STILE replacing SMS, APIs, or messaging platforms?**
+### A5. Is STILE a messaging protocol?
 
 No.
 
-It introduces a different layer:
+STILE is not:
 
-structural correctness layer  
-delivery admissibility layer  
-deterministic resolution layer  
+- a network protocol;
+- a message broker;
+- a queue;
+- a retry mechanism;
+- a transport replacement;
+- a proof of physical receipt.
 
-Transport systems may still be used for realization.
+It is a structural admission model.
 
 ---
 
-### **A8. Does STILE change delivery truth?**
+### A6. Is STILE replacing SMS, APIs, or messaging platforms?
 
 No.
 
-For valid structure:
+STILE can sit alongside existing systems.
 
-classical delivery truth = STILE delivery truth
+Transport systems may move data.
 
-Difference:
+Receiving systems may record consumption.
 
-STILE refuses to fabricate delivery when structure is not aligned.
+STILE resolves a separate question:
 
----
-
-### **A9. Is STILE a messaging protocol?**
-
-No.
-
-It is a structural proof that:
-
-delivery correctness does not require communication
+`is the declared delivery structure admissible under the named profile and versioned rules?`
 
 ---
 
-### **A10. Is STILE proving delivery or transmission?**
+### A7. What is the current reference profile?
 
-STILE proves delivery truth, not transmission.
+The current profile is:
 
-It determines whether a message is structurally delivered.
+`STILE-DELIVERY-ADMISSION-1-D01`
 
-It does NOT claim that:
+The current schema is:
 
-a message was physically sent  
-a network carried it  
-a device received it  
-
-This is the key distinction:
-
-delivery truth is structural  
-delivery transport is optional  
+`2.1.0`
 
 ---
 
-### **A11. What class of problems does this apply to?**
+### A8. What does the current profile evaluate?
 
-STILE applies to:
+The current reference profile evaluates declared structural fields for:
 
-structure-resolvable delivery systems
-
-This includes:
-
-OTP validation  
-API confirmation  
-cross-system state agreement  
-offline-first synchronization  
-distributed system coordination  
-
----
-
-## **SECTION B — Structural Delivery Model**
-
-### **B1. What is "structure" in STILE?**
-
-Structure is the complete and consistent set of conditions required for delivery.
-
-Example:
-
-sender intent  
-receiver expectation  
-message identity  
-conflict state  
-delivery context  
+- sender identity;
+- receiver identity;
+- message identity;
+- expected message identity;
+- payload identity;
+- expected payload identity;
+- sender intent;
+- receiver expectation;
+- context identity;
+- explicit conflict state.
 
 ---
 
-### **B2. What determines whether delivery is valid?**
+### A9. What class of problems might STILE help explore?
 
-Structural alignment.
+Potential application directions include:
 
----
+- APIs and service integration;
+- offline-first workflows;
+- distributed record exchange;
+- financial coordination;
+- disaster-response information systems;
+- healthcare data workflows;
+- IoT state exchange;
+- multi-party structural admission.
 
-### **B3. When is a message delivered?**
-
-When:
-
-`message_delivered iff structure_aligned`  
-
-`structure_aligned = complete AND consistent`
-
----
-
-### **B4. What if structure is incomplete?**
-
-Then:
-
-`resolution_state = ABSTAIN`
-
-No delivery is exposed.
+These are exploration directions. The current profile does not claim to solve every domain-specific delivery problem.
 
 ---
 
-### **B5. What if structure conflicts?**
+## SECTION B — Structural Admission Model
 
-Then:
+### B1. What is "structure" in STILE?
 
-`resolution_state = CONFLICT`
+Structure is the declared set of fields that the active profile treats as relevant to a structural admission decision.
 
-No delivery is exposed.
-
----
-
-### **B6. Why is CONFLICT a strength?**
-
-Because correctness must not collapse into false delivery.
-
-If structure is inconsistent:
-
-the system must refuse delivery  
-
-This prevents:
-
-false confirmations  
-incorrect acknowledgements  
-unsafe system states  
+In the current profile, this includes identities, expected identities, intent, expectation, context, and conflict state.
 
 ---
 
-### **B7. What is RESOLVED?**
+### B2. What determines the structural decision?
 
-RESOLVED means:
+The current model evaluates whether the declared structure is:
 
-structure is aligned  
-delivery becomes visible  
+`complete`
 
----
+and:
 
-### **B8. Why no retries?**
+`consistent`
 
-Because:
+The resulting states are:
 
-retries attempt to fix uncertainty  
+`complete + consistent -> RESOLVED + ADMITTED`
 
-STILE removes uncertainty at the structural level  
+`incomplete -> INCOMPLETE + ABSTAIN`
 
-If structure is not aligned:
-
-retrying does not create correctness  
+`conflicting -> CONFLICT + ABSTAIN`
 
 ---
 
-### **B9. Who defines the structure?**
+### B3. What does RESOLVED mean?
 
-The domain defines:
+`RESOLVED` means the required declared structure is complete and consistent under the current profile.
 
-intent  
-expectation  
-identity  
-constraints  
+The corresponding delivery admission is:
 
-STILE evaluates structure — it does not invent it.
+`ADMITTED`
 
----
+This is a structural admission result.
 
-## **SECTION C — No Communication Model**
-
-### **C1. What does "no communication" mean?**
-
-No dependency on:
-
-sending messages  
-network calls  
-acknowledgements  
-delivery receipts  
+It is not a claim of physical transmission or later consumption.
 
 ---
 
-### **C2. Is there still computation happening?**
+### B4. What does INCOMPLETE mean?
 
-Yes — but not as communication.
+`INCOMPLETE` means one or more required structural fields are missing, null, empty, or invalid.
 
-It is:
+The corresponding delivery admission is:
 
-`resolve(structure)`
+`ABSTAIN`
 
-not:
-
-`send -> wait -> confirm`
+The model does not force a positive decision from insufficient structure.
 
 ---
 
-### **C3. What is actually being eliminated?**
+### B5. What does CONFLICT mean?
 
-Communication dependency.
+`CONFLICT` means the required structure is complete enough to evaluate, but one or more declared structural relationships disagree.
 
-Not machine evaluation.
+Examples include:
 
-The claim is:
+`MESSAGE_ID_MISMATCH`
 
-correctness is not derived from communication  
-**communication is not a prerequisite for delivery truth**
+`PAYLOAD_HASH_MISMATCH`
 
----
+`INTENT_EXPECTATION_MISMATCH`
 
-### **C4. Is this just optimization?**
+`EXPLICIT_CONFLICT`
 
-No.
+The corresponding delivery admission is:
 
-It removes communication as a dependency for correctness.
-
----
-
-### **C5. Does order matter?**
-
-No.
-
-Structure is order-independent.
+`ABSTAIN`
 
 ---
 
-### **C6. Does time matter?**
+### B6. Why is abstention important?
 
-No.
+Abstention prevents the model from turning missing or conflicting structure into an unsupported positive admission.
 
-Delivery correctness does not depend on time.
+The safety rule is:
 
----
+`incomplete -> no ADMITTED result`
 
-## **SECTION D — Resolution States**
-
-### **D1. Visible states**
-
-RESOLVED  
-ABSTAIN  
-CONFLICT  
+`conflicting -> no ADMITTED result`
 
 ---
 
-### **D2. Visibility rule**
+### B7. Who defines the structure?
 
-`message_delivered iff structure_aligned`
+The domain or application profile defines the relevant fields and rules.
 
----
+STILE evaluates the declared structure under those rules.
 
-### **D3. Why is absence important?**
-
-Absence prevents false delivery.
+It does not invent domain truth.
 
 ---
 
-### **D4. Why is ABSTAIN important?**
+## SECTION C — Three Independent Lanes
 
-Because incomplete structure must not produce incorrect delivery.
+### C1. What is the structural admission lane?
+
+The structural admission lane resolves the declared structure under the active profile and schema.
+
+It produces:
+
+- `resolution`;
+- `delivery_admission`;
+- `reason_codes`;
+- `structure_hash`;
+- `decision_hash`.
 
 ---
 
-### **D5. Why is CONFLICT important?**
+### C2. What is the transport observation lane?
 
-Because conflicting structure must not produce arbitrary delivery.
+The transport observation lane records operational movement separately from the structural decision.
+
+The current reference values are:
+
+`UNKNOWN`
+
+`NOT_OBSERVED`
+
+`SENT`
+
+`RECEIVED`
+
+`FAILED`
+
+Unsupported values are surfaced as:
+
+`INVALID`
 
 ---
 
-## **SECTION E — Determinism & Convergence**
+### C3. What is the consumption observation lane?
 
-### **E1. Is STILE deterministic?**
+The consumption observation lane records later use separately from the structural decision.
+
+The current reference values are:
+
+`UNKNOWN`
+
+`UNREAD`
+
+`CONSUMED`
+
+`REJECTED`
+
+Unsupported values are surfaced as:
+
+`INVALID`
+
+---
+
+### C4. Can transport change without changing the structural decision?
 
 Yes.
 
+The current invariant is:
+
+`transport-only change -> same structure_hash + same decision_hash + different observation_hash`
+
 ---
 
-### **E2. Will independent systems agree?**
+### C5. Can consumption change without changing the structural decision?
 
 Yes.
 
-`S1 = S2 -> DeliveryState1 = DeliveryState2 -> Certificate1 = Certificate2`
+The current invariant is:
+
+`consumption-only change -> same structure_hash + same decision_hash + different observation_hash`
 
 ---
 
-### **E3. What is sigma?**
+### C6. Why separate these lanes?
 
-A deterministic structural certificate.
+Because movement, admissibility, and use answer different questions.
 
-`same structure -> same sigma`
+Collapsing them into one state can hide important distinctions.
 
----
-
-### **E4. Why does sigma matter?**
-
-It proves that delivery is independent of:
-
-network  
-timing  
-retry logic  
-execution order  
+STILE makes those distinctions explicit.
 
 ---
 
-## **SECTION F — Practical Meaning**
+## SECTION D — Evidence Identities
 
-### **F1. What changes?**
+### D1. What is structure_hash?
 
-From:
+`structure_hash` identifies the declared structural core together with the profile and schema.
 
-delivery = result of communication  
-
-To:
-
-delivery = result of structure  
+Transport and consumption observations are outside this hash.
 
 ---
 
-### **F2. Benefits**
+### D2. What is decision_hash?
 
-deterministic delivery  
-no retry storms  
-no ambiguous states  
-safe silence  
-conflict protection  
+`decision_hash` identifies:
 
----
-
-### **F3. Role of communication**
-
-Reduced from:
-
-source of correctness → carrier of structure  
+- the profile;
+- the schema;
+- the structure hash;
+- the resolution;
+- the delivery admission;
+- the reason codes.
 
 ---
 
-### **F4. Where can STILE be useful?**
+### D3. What is observation_hash?
 
-APIs  
-distributed systems  
-microservices  
-offline-first systems  
-identity recovery  
-financial settlement  
-audit systems  
+`observation_hash` binds transport and consumption observations to the structural decision.
+
+This allows observations to change without rewriting the structural decision.
 
 ---
 
-## **SECTION G — Why This Was Not Standard**
+### D4. What is the core deterministic guarantee?
 
-### **G1. Historical assumption**
+Within the declared profile and schema:
 
-Delivery systems assumed:
+`same declared structure + same versioned rules -> same structural decision`
 
-communication is required  
-acknowledgements define truth  
-retries ensure correctness  
+The implementation also verifies deterministic hash reproduction for declared fixtures.
 
 ---
 
-### **G2. What changed?**
+### D5. Does changing the schema change the hashes?
 
-structure-first modeling  
-deterministic resolution  
-minimal proof  
+Yes.
 
----
+The evidence model is version-bound.
 
-## **SECTION H — Ecosystem Context**
+The structure identity includes:
 
-### **H1. Structural progression**
+`profile + schema + declared structure`
 
-SLANG → correctness without execution  
-STIME → correctness without time  
-STINT → correctness without connectivity  
-STRAL → correctness without traversal  
-STILE → correctness without communication  
+A schema change therefore intentionally changes the associated hashes.
 
 ---
 
-### **H2. Role of STILE**
+### D6. Does key order change the result?
 
-It is the first visible proof that:
+No, for equivalent JSON object content under the canonical serialization used by the reference implementation.
 
-delivery correctness can exist without communication  
-
----
-
-## **SECTION I — Boundaries**
-
-### **I1. What it does NOT claim**
-
-not replacing messaging systems  
-not eliminating transport  
-not proving physical delivery  
-not reducing latency  
+The conformance suite verifies key-order invariance.
 
 ---
 
-### **I2. What it establishes**
+### D7. Does STILE support Unicode consistently?
 
-delivery correctness does not require communication  
+The v2.1 reference pair uses matching UTF-8 canonical hashing.
+
+The Python and browser implementations verify the same Unicode fixture hashes.
 
 ---
 
-## **SECTION J — Skeptic Questions**
+## SECTION E — Determinism & Cross-Runtime Parity
 
-### **J1. Isn’t this still sending something?**
+### E1. Is STILE deterministic?
+
+Yes, within the declared profile, schema, input structure, and rules.
+
+---
+
+### E2. Will the Python and browser references agree?
+
+The verified v2.1 fixtures do.
+
+The reference pair verifies:
+
+`baseline cross-runtime hash parity -> PASS`
+
+`Unicode cross-runtime hash parity -> PASS`
+
+---
+
+### E3. What conformance results should I expect?
+
+The current reference results are:
+
+`Python conformance -> 25/25 PASS`
+
+`Browser built-in conformance -> 25/25 PASS`
+
+`Full browser audit -> 30/30 PASS`
+
+`Visible demonstration cases -> 8/8 expected`
+
+---
+
+### E4. Why does the browser show 25/25 while the full audit shows 30/30?
+
+The browser application contains a built-in 25-check conformance suite.
+
+The broader console audit additionally checks explicit `structure_hash` stability across transport-only and consumption-only changes, together with exact Python/browser parity for the three canonical baseline hashes.
+
+This brings the total to 30 checks.
+
+Both are intentional.
+
+---
+
+## SECTION F — Practical Meaning
+
+### F1. What changes conceptually?
+
+Instead of treating one operational signal as the whole truth, STILE separates:
+
+`movement`
+
+`structural admissibility`
+
+`use`
+
+This makes the authority boundary explicit.
+
+---
+
+### F2. What are the practical benefits of this separation?
+
+Potential benefits include:
+
+- deterministic structural admission;
+- explicit abstention on incomplete input;
+- explicit conflict handling;
+- clearer state boundaries;
+- independent observation tracking;
+- reproducible evidence identities;
+- easier cross-runtime verification.
+
+Actual production benefits depend on the surrounding domain and implementation.
+
+---
+
+### F3. What is the role of transport?
+
+Transport establishes movement.
+
+It may be essential for systems that need to move data.
+
+STILE simply does not make transport observation the sole authority over structural admission.
+
+---
+
+### F4. What is the role of consumption?
+
+Consumption establishes later use or handling.
+
+A message may be structurally admitted before, after, or independently of a later consumption observation, depending on the surrounding application.
+
+---
+
+## SECTION G — Boundaries
+
+### G1. Does ADMITTED mean that bytes reached another machine?
 
 No.
 
-Structure is evaluated — not transmitted.
+`ADMITTED` is a structural result under the current profile.
+
+It does not prove remote receipt.
 
 ---
 
-### **J2. Is this just a rules engine?**
+### G2. Does ADMITTED mean that a person read the content?
 
 No.
 
-It demonstrates a structural invariant:
-
-`same structure -> same delivery -> same certificate`
+Reading or use belongs to the consumption lane.
 
 ---
 
-### **J3. Is silence failure?**
+### G3. Does RECEIVED automatically mean ADMITTED?
 
 No.
 
-`silence = structure not aligned`
+Transport observation and structural admission are separate.
 
 ---
 
-### **J4. Can this fail?**
+### G4. Does CONSUMED automatically mean ADMITTED?
 
-Yes — when structure is incomplete or conflicting.
+Not by definition.
 
----
-
-## **SECTION K — Adoption & Packaging**
-
-### **K1. Why a tiny kernel?**
-
-To isolate the principle clearly:
-
-delivery correctness does not require communication  
+Consumption observation and structural admission are separate lanes.
 
 ---
 
-### **K2. Is this production-ready?**
+### G5. Is STILE a universal delivery oracle?
 
 No.
 
-It is a reference proof of the structural principle.
+The current profile is explicitly bounded.
+
+Other domains may require different fields, rules, authorities, and evidence models.
 
 ---
 
-## ⭐ **Final One-Line Summary**
+### G6. Is STILE a consensus protocol?
 
-STILE is a deterministic structural resolution model in which delivery correctness is derived directly from complete and consistent structure — without communication, acknowledgements, retries, or network dependency — while safely leaving unsupported delivery absent and producing identical results for identical structure.
+No.
+
+It does not implement distributed consensus, finality, quorum agreement, or network coordination.
+
+---
+
+### G7. Is STILE a proof of legal or contractual delivery?
+
+No.
+
+Legal meaning depends on applicable law, policy, evidence requirements, and domain-specific rules.
+
+The reference implementation does not establish legal delivery.
+
+---
+
+## SECTION H — Skeptic Questions
+
+### H1. Isn't this just a rules engine?
+
+The implementation does evaluate explicit rules.
+
+The research contribution being demonstrated is the state separation and deterministic evidence model:
+
+`transport_state != structural_delivery_state != consumption_state`
+
+together with:
+
+`same declared structure + same versioned rules -> same structural decision`
+
+Whether a production deployment uses a rules engine, dedicated service, embedded library, or another implementation mechanism is a separate engineering choice.
+
+---
+
+### H2. Is the result still produced by computation?
+
+Yes.
+
+The reference implementation computes the result.
+
+The claim is not that computation disappears.
+
+The claim is about which declared information is authoritative for the bounded structural admission decision.
+
+---
+
+### H3. Can STILE fail?
+
+Yes.
+
+A deployment can be wrong if:
+
+- the profile is poorly designed;
+- required fields are omitted;
+- domain rules are incorrect;
+- inputs are false or untrusted;
+- implementation behavior diverges from the declared profile;
+- the model is applied outside its intended scope.
+
+Determinism does not guarantee that a badly specified model is correct for a domain.
+
+---
+
+### H4. Does same structure always mean same real-world truth?
+
+Not necessarily.
+
+The deterministic guarantee applies to the resolver's bounded decision under the declared profile and rules.
+
+Real-world truth may depend on facts or authorities that are not represented in the declared structure.
+
+---
+
+### H5. Why are unsupported observations marked INVALID?
+
+Because an unrecognized observation should not silently become a recognized state.
+
+This makes unsupported values explicit and keeps Python and browser behavior aligned.
+
+---
+
+## SECTION I — Verification
+
+### I1. How is the Python reference verified?
+
+Run:
+
+`python reference/stile_delivery_admission_v2_1.py --self-test`
+
+Expected:
+
+`status = PASS`
+
+`passed = 25`
+
+`total = 25`
+
+---
+
+### I2. How is the browser reference verified?
+
+The browser runs its built-in conformance suite automatically.
+
+Expected:
+
+`25/25 PASS`
+
+The verification guide also provides the full console audit.
+
+Expected:
+
+`30/30 PASS`
+
+---
+
+### I3. What does the full browser audit verify?
+
+It verifies:
+
+- aligned structural resolution;
+- structural admission;
+- transport separation;
+- consumption separation;
+- deterministic replay;
+- key-order invariance;
+- incomplete-state abstention;
+- conflict handling;
+- structural-change sensitivity;
+- invalid observation handling;
+- Python/browser baseline hash parity;
+- Unicode hash parity.
+
+---
+
+### I4. How can I verify the exact reference files?
+
+Use the SHA-256 identities recorded in the freeze file and compare them against hashes generated locally.
+
+The verification guide contains the exact commands and expected values.
+
+---
+
+## SECTION J — Adoption & Packaging
+
+### J1. Is STILE a production system?
+
+No.
+
+STILE v2.1 is a bounded reference implementation and research model.
+
+A production deployment would require domain-specific requirements, security controls, trust assumptions, operational handling, monitoring, testing, and governance.
+
+---
+
+### J2. Why keep the reference implementation small?
+
+A compact reference makes the governing behavior easier to inspect, reproduce, test, and port.
+
+The current goal is clarity of the structural model, not feature breadth.
+
+---
+
+### J3. Can STILE be extended?
+
+Yes.
+
+Possible directions include:
+
+- additional structural fields;
+- domain-specific profiles;
+- multi-party admission;
+- stronger certificate formats;
+- independent language ports;
+- profile conformance suites;
+- application-specific trust models.
+
+Any extension should preserve clear versioning and claim boundaries.
+
+---
+
+## SECTION K — Shunyaya Framework Context
+
+### K1. How does STILE fit within the Shunyaya Framework?
+
+STILE contributes a specific structural separation:
+
+`transport establishes movement`
+
+`structure establishes admissibility`
+
+`consumption establishes use`
+
+Its focus is not removing operational systems.
+
+Its focus is preventing one operational mechanism from automatically becoming the sole authority over a bounded structural admission decision.
+
+---
+
+### K2. What is the main STILE invariant?
+
+Within the declared profile:
+
+`same declared structure + same versioned rules -> same structural decision`
+
+---
+
+### K3. What is the strongest accurate one-line description?
+
+STILE is a deterministic structural admission model that separates delivery-state resolution from transport and consumption observations, allowing the bounded structural decision to remain stable while those observations change independently.
+
+---
+
+## ⭐ Final One-Line Summary
+
+STILE v2.1 deterministically resolves whether declared delivery structure is admissible under a named profile and schema, while keeping transport movement and later consumption as separate observations rather than treating either as the sole authority over the structural decision.
