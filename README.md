@@ -36,6 +36,12 @@ None of these lanes is allowed to impersonate the others.
 
 ---
 
+## 🧭 STILE v2.1 at a Glance
+
+![STILE v2.1 Structural Delivery Admission](docs/STILE-Message-Delivery.png)
+
+---
+
 ## ⚡ Core Guarantee
 
 Within the declared STILE profile:
