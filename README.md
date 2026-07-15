@@ -14,6 +14,8 @@
 ![Deterministic](https://img.shields.io/badge/Resolution-Deterministic-purple)
 ![Self Contained](https://img.shields.io/badge/Browser-Self--Contained-orange)
 
+[![STILE Verify](https://github.com/OMPSHUNYAYA/STILE/actions/workflows/stile-verify.yml/badge.svg?branch=main)](https://github.com/OMPSHUNYAYA/STILE/actions/workflows/stile-verify.yml)
+
 STILE is a bounded deterministic reference model for resolving structural delivery admission while keeping transport observation and consumption observation separate.
 
 The governing relation is:
