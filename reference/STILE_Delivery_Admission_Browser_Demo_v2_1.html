@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STILE — Structural Integration Leverage</title>
+<style>
+:root{
+  --bg:#07111d;
+  --bg2:#0c1726;
+  --panel:#101d2d;
+  --panel2:#142336;
+  --line:#2a3a50;
+  --text:#f4f8fc;
+  --muted:#aebbd0;
+  --soft:#d7e2f0;
+  --gold:#ffd166;
+  --mint:#70e1c1;
+  --amber:#ffbd69;
+  --red:#ff7b8a;
+  --violet:#b9a7ff;
+  --shadow:0 24px 70px rgba(0,0,0,.34);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  min-height:100vh;
+  color:var(--text);
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+  background:
+    radial-gradient(circle at 8% 0%,rgba(112,225,193,.11),transparent 26%),
+    radial-gradient(circle at 92% 5%,rgba(185,167,255,.12),transparent 28%),
+    linear-gradient(180deg,var(--bg),var(--bg2));
+}
+button,input,select{font:inherit}
+button{color:inherit}
+.wrap{max-width:1500px;margin:0 auto;padding:18px;display:grid;gap:16px}
+.hero,.panel{
+  border:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));
+  box-shadow:var(--shadow);
+}
+.hero{border-radius:30px;padding:28px;overflow:hidden;position:relative}
+.hero:after{
+  content:"";
+  position:absolute;
+  width:340px;height:340px;border-radius:50%;
+  right:-170px;top:-180px;
+  background:radial-gradient(circle,rgba(255,209,102,.18),transparent 65%);
+  pointer-events:none;
+}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1px solid var(--line);border-radius:999px;
+  padding:8px 12px;background:rgba(255,255,255,.05);
+  color:var(--gold);font-size:.78rem;font-weight:900;
+  letter-spacing:.1em;text-transform:uppercase;
+}
+h1{font-size:clamp(2rem,4vw,4.5rem);line-height:.98;letter-spacing:-.05em;margin:16px 0 12px;max-width:1120px}
+.hero p{max-width:1050px;color:var(--muted);font-size:1.08rem;line-height:1.65;margin:0}
+.relations{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:20px}
+.relation{border:1px solid var(--line);background:rgba(0,0,0,.2);border-radius:18px;padding:14px}
+.relation b{display:block;color:var(--gold);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.relation code{color:#f7fbff;font-weight:800;line-height:1.4;white-space:normal}
+.panel{border-radius:26px;padding:22px}
+.head{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin-bottom:16px}
+.head h2{margin:0;font-size:1.55rem;letter-spacing:-.025em}
+.head p{margin:0;color:var(--muted);line-height:1.5;max-width:720px}
+.lanes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.lane{border:1px solid var(--line);border-radius:24px;padding:18px;background:rgba(0,0,0,.18);min-height:230px}
+.lane .tag{font-size:.75rem;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.lane h3{margin:0 0 8px;font-size:1.3rem}
+.lane p{margin:0;color:var(--muted);line-height:1.56}
+.lane .state{margin-top:18px;padding:14px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.04)}
+.state-label{display:block;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;font-weight:800;margin-bottom:6px}
+.state-value{font-size:1.3rem;font-weight:950;letter-spacing:-.02em}
+.ok{color:var(--mint)}
+.warn{color:var(--amber)}
+.bad{color:var(--red)}
+.neutral{color:var(--violet)}
+.workspace{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(380px,.95fr);gap:16px}
+.casebar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.case{
+  border:1px solid var(--line);background:rgba(255,255,255,.035);
+  border-radius:17px;padding:12px;cursor:pointer;text-align:left;min-height:102px;
+  transition:transform .11s ease,box-shadow .11s ease,background .16s ease,border-color .16s ease;
+  box-shadow:0 5px 0 rgba(0,0,0,.24),0 9px 18px rgba(0,0,0,.16);
+}
+.case:active{
+  transform:translateY(4px) scale(.985);
+  box-shadow:inset 0 5px 12px rgba(0,0,0,.42),0 1px 0 rgba(255,255,255,.05);
+}
+.case:hover,.case.active{transform:translateY(-2px);border-color:#607b9f;background:rgba(255,255,255,.075)}
+.case.active:active{transform:translateY(4px) scale(.985)}
+.case b{display:block;color:var(--gold);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px}
+.case span{display:block;font-weight:900;margin-bottom:5px}
+.case small{display:block;color:var(--muted);line-height:1.35}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.field{border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:16px;padding:10px}
+.field label{display:block;color:var(--soft);font-size:.74rem;font-weight:850;letter-spacing:.05em;text-transform:uppercase;margin-bottom:7px}
+.field input,.field select{
+  width:100%;border:1px solid #344963;border-radius:11px;
+  padding:10px 11px;background:#0a1422;color:var(--text);outline:none;
+}
+.field input:focus,.field select:focus{border-color:#7695bb}
+.field.full{grid-column:1/-1}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.btn{
+  border:1px solid var(--line);background:rgba(255,255,255,.06);
+  border-radius:999px;padding:11px 15px;cursor:pointer;font-weight:900;
+  transition:transform .11s ease,box-shadow .11s ease,background .16s ease;
+  box-shadow:0 5px 0 rgba(0,0,0,.26),0 9px 18px rgba(0,0,0,.16);
+}
+.btn:active{
+  transform:translateY(4px) scale(.985);
+  box-shadow:inset 0 5px 12px rgba(0,0,0,.44),0 1px 0 rgba(255,255,255,.05);
+}
+.btn:hover{background:rgba(255,255,255,.1)}
+.btn.primary{background:linear-gradient(135deg,var(--gold),#ffe89a);color:#111820;border:none;box-shadow:0 5px 0 #b9902e,0 9px 18px rgba(0,0,0,.18)}
+.btn.primary:active{box-shadow:inset 0 5px 12px rgba(86,60,0,.32),0 1px 0 rgba(255,255,255,.18)}
+.result-box{display:grid;gap:12px}
+.summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.summary{border:1px solid var(--line);border-radius:18px;padding:14px;background:rgba(0,0,0,.2)}
+.summary strong{display:block;color:var(--muted);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.summary span{font-size:1.25rem;font-weight:950;word-break:break-word}
+.reason{border:1px solid var(--line);border-radius:18px;padding:14px;background:rgba(0,0,0,.2)}
+.reason b{display:block;color:var(--muted);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px}
+.hashes{display:grid;gap:9px}
+.hash-card{border:1px solid var(--line);border-radius:18px;padding:13px;background:#09131f}
+.hash-card .row{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:7px}
+.hash-card b{color:var(--gold);font-size:.77rem;letter-spacing:.08em;text-transform:uppercase}
+.hash-card code{display:block;color:#dbe8f8;word-break:break-all;line-height:1.5;font-size:.82rem}
+.copy{
+  border:1px solid var(--line);background:rgba(255,255,255,.05);
+  border-radius:999px;padding:5px 9px;font-size:.74rem;cursor:pointer;
+  transition:transform .1s ease,box-shadow .1s ease,background .14s ease;
+  box-shadow:0 3px 0 rgba(0,0,0,.24),0 6px 12px rgba(0,0,0,.12)
+}
+.copy:active{
+  transform:translateY(3px) scale(.97);
+  box-shadow:inset 0 4px 9px rgba(0,0,0,.4),0 1px 0 rgba(255,255,255,.05)
+}
+.invariant{border:1px solid var(--line);border-radius:20px;padding:15px;background:rgba(255,255,255,.03)}
+.invariant h4{margin:0 0 10px}
+.inv-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.inv{border:1px solid var(--line);border-radius:14px;padding:11px;background:rgba(0,0,0,.17)}
+.inv b{display:block;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.inv span{font-weight:900}
+.legend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.legend .card{border:1px solid var(--line);border-radius:20px;padding:16px;background:rgba(0,0,0,.17)}
+.legend h3{margin:0 0 8px;font-size:1.08rem}
+.legend p{margin:0;color:var(--muted);line-height:1.55}
+.conformance{display:grid;grid-template-columns:280px minmax(0,1fr);gap:16px}
+.score{
+  border:1px solid var(--line);border-radius:22px;padding:18px;background:rgba(0,0,0,.2);
+  display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center
+}
+.score .big{font-size:3.3rem;font-weight:1000;letter-spacing:-.05em}
+.score p{margin:6px 0 0;color:var(--muted)}
+.checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.check{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:rgba(255,255,255,.03);display:flex;gap:9px;align-items:center}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--mint);box-shadow:0 0 14px rgba(112,225,193,.5);flex:0 0 auto}
+.footer{text-align:center;color:var(--muted);padding:18px 10px 38px;line-height:1.6}
+.footer strong{color:var(--text)}
+@media(max-width:1120px){
+  .relations,.casebar{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .workspace,.conformance{grid-template-columns:1fr}
+}
+@media(max-width:860px){
+  .lanes,.legend{grid-template-columns:1fr}
+}
+@media(max-width:680px){
+  .wrap{padding:10px}
+  .hero,.panel{padding:17px;border-radius:21px}
+  .relations,.casebar,.form-grid,.summary-grid,.inv-grid,.checks{grid-template-columns:1fr}
+  .field.full{grid-column:auto}
+  h1{font-size:2rem}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div class="eyebrow">STILE v2.1</div>
+    <h1>Structural Integration Leverage</h1>
+    <p>STILE separates structural delivery admission from transport observation and consumption observation. Transport can move data. Consumption can record use. Neither becomes the sole authority over the bounded structural admission decision.</p>
+    <div class="relations">
+      <div class="relation"><b>Resolution</b><code>structural_delivery_state = resolve(declared_delivery_structure, versioned_rules)</code></div>
+      <div class="relation"><b>Transport</b><code>transport establishes movement</code></div>
+      <div class="relation"><b>Structure</b><code>structure establishes admissibility</code></div>
+      <div class="relation"><b>Consumption</b><code>consumption establishes use</code></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="head">
+      <h2>Three independent lanes</h2>
+      <p>A transport event can change without rewriting the structural decision. A consumption event can change later without rewriting either the declared delivery structure or its admission result.</p>
+    </div>
+    <div class="lanes">
+      <div class="lane">
+        <div class="tag">Lane 1</div>
+        <h3>Structural Admission</h3>
+        <p>Resolves the declared sender, receiver, message identity, payload identity, intent, expectation, context, and conflict state.</p>
+        <div class="state"><span class="state-label">Current state</span><span id="laneAdmission" class="state-value ok">ADMITTED</span></div>
+      </div>
+      <div class="lane">
+        <div class="tag">Lane 2</div>
+        <h3>Transport Observation</h3>
+        <p>Records an operational observation such as not observed, sent, received, or failed. It does not rewrite the structural admission decision.</p>
+        <div class="state"><span class="state-label">Current state</span><span id="laneTransport" class="state-value neutral">NOT_OBSERVED</span></div>
+      </div>
+      <div class="lane">
+        <div class="tag">Lane 3</div>
+        <h3>Consumption Observation</h3>
+        <p>Records whether the admitted content is unread, consumed, rejected, or still unknown. It remains separate from delivery admission.</p>
+        <div class="state"><span class="state-label">Current state</span><span id="laneConsumption" class="state-value neutral">UNKNOWN</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="head">
+      <h2>Interactive resolver</h2>
+      <p>Select a case or edit the declared structure directly. The resolver recomputes deterministic structural state and evidence immediately.</p>
+    </div>
+
+    <div class="casebar" id="casebar"></div>
+
+    <div class="workspace">
+      <div>
+        <div class="form-grid">
+          <div class="field"><label>Sender ID</label><input id="sender_id"></div>
+          <div class="field"><label>Receiver ID</label><input id="receiver_id"></div>
+          <div class="field"><label>Sender Message ID</label><input id="sender_message_id"></div>
+          <div class="field"><label>Receiver Expected Message ID</label><input id="receiver_expected_message_id"></div>
+          <div class="field"><label>Sender Payload Hash</label><input id="sender_payload_hash"></div>
+          <div class="field"><label>Receiver Expected Payload Hash</label><input id="receiver_expected_payload_hash"></div>
+          <div class="field"><label>Sender Intent</label><input id="sender_intent"></div>
+          <div class="field"><label>Receiver Expectation</label><input id="receiver_expectation"></div>
+          <div class="field"><label>Context ID</label><input id="context_id"></div>
+          <div class="field"><label>Conflict</label><select id="conflict"><option value="false">false</option><option value="true">true</option><option value="">missing</option></select></div>
+          <div class="field"><label>Transport Observation</label><select id="transport_observation"><option>UNKNOWN</option><option>NOT_OBSERVED</option><option>SENT</option><option>RECEIVED</option><option>FAILED</option></select></div>
+          <div class="field"><label>Consumption Observation</label><select id="consumption_observation"><option>UNKNOWN</option><option>UNREAD</option><option>CONSUMED</option><option>REJECTED</option></select></div>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="baselineBtn">Restore aligned structure</button>
+          <button class="btn" id="swapTransportBtn">Change only transport</button>
+          <button class="btn" id="consumeBtn">Change only consumption</button>
+          <button class="btn" id="downloadBtn">Download receipt</button>
+        </div>
+      </div>
+
+      <div class="result-box">
+        <div class="summary-grid">
+          <div class="summary"><strong>Resolution</strong><span id="resolution" class="ok">RESOLVED</span></div>
+          <div class="summary"><strong>Delivery Admission</strong><span id="delivery_admission" class="ok">ADMITTED</span></div>
+        </div>
+        <div class="reason"><b>Reason Codes</b><span id="reason_codes">NONE</span></div>
+
+        <div class="hashes">
+          <div class="hash-card">
+            <div class="row"><b>Structure Hash</b><button class="copy" data-copy="structure_hash">Copy</button></div>
+            <code id="structure_hash"></code>
+          </div>
+          <div class="hash-card">
+            <div class="row"><b>Decision Hash</b><button class="copy" data-copy="decision_hash">Copy</button></div>
+            <code id="decision_hash"></code>
+          </div>
+          <div class="hash-card">
+            <div class="row"><b>Observation Hash</b><button class="copy" data-copy="observation_hash">Copy</button></div>
+            <code id="observation_hash"></code>
+          </div>
+        </div>
+
+        <div class="invariant">
+          <h4>Baseline comparison</h4>
+          <div class="inv-grid">
+            <div class="inv"><b>Structure</b><span id="sameStructure">SAME</span></div>
+            <div class="inv"><b>Decision</b><span id="sameDecision">SAME</span></div>
+            <div class="inv"><b>Observation</b><span id="sameObservation">SAME</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="head">
+      <h2>What each hash means</h2>
+      <p>The evidence model separates the identity of declared structure, the structural decision, and later observations.</p>
+    </div>
+    <div class="legend">
+      <div class="card"><h3>Structure Hash</h3><p>Identifies the declared structural core under the named profile and schema. Transport and consumption observations are outside this hash.</p></div>
+      <div class="card"><h3>Decision Hash</h3><p>Identifies the structural resolution, delivery admission, reason codes, and the structure hash that produced them.</p></div>
+      <div class="card"><h3>Observation Hash</h3><p>Identifies transport and consumption observations bound to the structural decision without rewriting that decision.</p></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="head">
+      <h2>Conformance</h2>
+      <p>The browser runs the same bounded invariant checks used to verify deterministic separation between structure, decision, transport observation, and consumption observation.</p>
+    </div>
+    <div class="conformance">
+      <div class="score">
+        <div class="big" id="score">25/25</div>
+        <div class="state-value ok" id="scoreState">PASS</div>
+        <p>STILE-DELIVERY-ADMISSION-1-D01</p>
+      </div>
+      <div class="checks" id="checks"></div>
+    </div>
+  </section>
+
+  <div class="footer">
+    <strong>STILE v2.1</strong><br>
+    Structural Integration Leverage<br>
+    Delivery-State Resolution Without Transport as the Sole Authority
+  </div>
+</div>
+
+<script>
+const PROFILE_ID="STILE-DELIVERY-ADMISSION-1-D01";
+const SCHEMA_VERSION="2.1.0";
+const required=[
+  "sender_id","receiver_id","sender_message_id","receiver_expected_message_id",
+  "sender_payload_hash","receiver_expected_payload_hash","sender_intent",
+  "receiver_expectation","context_id"
+];
+const transportStates=new Set(["UNKNOWN","NOT_OBSERVED","SENT","RECEIVED","FAILED"]);
+const consumptionStates=new Set(["UNKNOWN","UNREAD","CONSUMED","REJECTED"]);
+
+function canonical(value){
+  if(value===null||typeof value!=="object") return JSON.stringify(value);
+  if(Array.isArray(value)) return "["+value.map(canonical).join(",")+"]";
+  return "{"+Object.keys(value).sort().map(k=>JSON.stringify(k)+":"+canonical(value[k])).join(",")+"}";
+}
+
+function rotr(n,x){return (x>>>n)|(x<<(32-n))}
+function sha256(text){
+  const maxWord=Math.pow(2,32), words=[], ascii=unescape(encodeURIComponent(text));
+  const hash=sha256.h=sha256.h||[], k=sha256.k=sha256.k||[];
+  let primeCounter=k.length, isComposite={};
+  for(let candidate=2;primeCounter<64;candidate++){
+    if(!isComposite[candidate]){
+      for(let i=0;i<313;i+=candidate)isComposite[i]=candidate;
+      if(primeCounter<8)hash[primeCounter]=(Math.pow(candidate,.5)*maxWord)|0;
+      k[primeCounter++]=(Math.pow(candidate,1/3)*maxWord)|0;
+    }
+  }
+  text=ascii+"\x80";
+  while(text.length%64-56)text+="\x00";
+  for(let i=0;i<text.length;i++)words[i>>2]|=text.charCodeAt(i)<<((3-i)%4)*8;
+  words[words.length]=((ascii.length/Math.pow(2,29))|0);
+  words[words.length]=(ascii.length<<3);
+  let h=hash.slice(0);
+  for(let j=0;j<words.length;){
+    const w=words.slice(j,j+=16), oldHash=h.slice(0);
+    for(let i=0;i<64;i++){
+      const w15=w[i-15],w2=w[i-2];
+      const a=h[0],e=h[4];
+      const temp1=h[7]+(rotr(6,e)^rotr(11,e)^rotr(25,e))+((e&h[5])^((~e)&h[6]))+k[i]+
+        (w[i]=(i<16)?w[i]:(
+          w[i-16]+(rotr(7,w15)^rotr(18,w15)^(w15>>>3))+w[i-7]+
+          (rotr(17,w2)^rotr(19,w2)^(w2>>>10))
+        )|0);
+      const temp2=(rotr(2,a)^rotr(13,a)^rotr(22,a))+((a&h[1])^(a&h[2])^(h[1]&h[2]));
+      h=[(temp1+temp2)|0].concat(h);
+      h[4]=(h[4]+temp1)|0;
+      h.pop();
+    }
+    for(let i=0;i<8;i++)h[i]=(h[i]+oldHash[i])|0;
+  }
+  return h.map(v=>("00000000"+(v>>>0).toString(16)).slice(-8)).join("");
+}
+
+function hashObject(value){return sha256(canonical(value))}
+
+function normalizeObservation(value,allowed){
+  if(value===undefined||value===null)return "UNKNOWN";
+  return typeof value==="string"&&allowed.has(value)?value:"INVALID";
+}
+
+function extractCore(s){
+  const core={};
+  required.forEach(field=>core[field]=Object.prototype.hasOwnProperty.call(s,field)?s[field]:null);
+  core.conflict=Object.prototype.hasOwnProperty.call(s,"conflict")?s.conflict:null;
+  return core;
+}
+
+function completenessReasons(s){
+  const reasons=[];
+  for(const field of required){
+    if(!Object.prototype.hasOwnProperty.call(s,field)){reasons.push("MISSING_"+field.toUpperCase());continue}
+    const value=s[field];
+    if(value===null){reasons.push("NULL_"+field.toUpperCase())}
+    else if(typeof value!=="string"){reasons.push("INVALID_TYPE_"+field.toUpperCase())}
+    else if(value===""){reasons.push("EMPTY_"+field.toUpperCase())}
+  }
+  if(!Object.prototype.hasOwnProperty.call(s,"conflict"))reasons.push("MISSING_CONFLICT");
+  else if(s.conflict===null)reasons.push("NULL_CONFLICT");
+  else if(typeof s.conflict!=="boolean")reasons.push("INVALID_TYPE_CONFLICT");
+  return reasons.sort();
+}
+
+function consistencyReasons(s){
+  const reasons=[];
+  if(s.sender_message_id!==s.receiver_expected_message_id)reasons.push("MESSAGE_ID_MISMATCH");
+  if(s.sender_payload_hash!==s.receiver_expected_payload_hash)reasons.push("PAYLOAD_HASH_MISMATCH");
+  if(s.sender_intent!==s.receiver_expectation)reasons.push("INTENT_EXPECTATION_MISMATCH");
+  if(s.conflict!==false)reasons.push("EXPLICIT_CONFLICT");
+  return reasons.sort();
+}
+
+function resolveDelivery(s){
+  const transport_observation=normalizeObservation(s.transport_observation,transportStates);
+  const consumption_observation=normalizeObservation(s.consumption_observation,consumptionStates);
+  const core=extractCore(s);
+  const structure_hash=hashObject({profile_id:PROFILE_ID,schema_version:SCHEMA_VERSION,structural_core:core});
+  const missing=completenessReasons(s);
+  let resolution,delivery_admission,reason_codes;
+  if(missing.length){
+    resolution="INCOMPLETE";delivery_admission="ABSTAIN";reason_codes=missing;
+  }else{
+    const conflicts=consistencyReasons(s);
+    if(conflicts.length){
+      resolution="CONFLICT";delivery_admission="ABSTAIN";reason_codes=conflicts;
+    }else{
+      resolution="RESOLVED";delivery_admission="ADMITTED";reason_codes=[];
+    }
+  }
+  const decision_record={profile_id:PROFILE_ID,schema_version:SCHEMA_VERSION,structure_hash,resolution,delivery_admission,reason_codes};
+  const decision_hash=hashObject(decision_record);
+  const observation_record={decision_hash,transport_observation,consumption_observation};
+  const observation_hash=hashObject(observation_record);
+  return {profile_id:PROFILE_ID,schema_version:SCHEMA_VERSION,resolution,delivery_admission,reason_codes,structure_hash,decision_hash,transport_observation,consumption_observation,observation_hash};
+}
+
+function baseStructure(){
+  return {
+    sender_id:"A",
+    receiver_id:"B",
+    sender_message_id:"MSG-001",
+    receiver_expected_message_id:"MSG-001",
+    sender_payload_hash:"PAYLOAD-ABC-001",
+    receiver_expected_payload_hash:"PAYLOAD-ABC-001",
+    sender_intent:"CONFIRM",
+    receiver_expectation:"CONFIRM",
+    context_id:"ORDER-42",
+    conflict:false,
+    transport_observation:"NOT_OBSERVED",
+    consumption_observation:"UNKNOWN"
+  };
+}
+
+function unicodeStructure(){
+  return {
+    sender_id:"Å",
+    receiver_id:"用户",
+    sender_message_id:"MSG-Ü-001",
+    receiver_expected_message_id:"MSG-Ü-001",
+    sender_payload_hash:"载荷-Δ-001",
+    receiver_expected_payload_hash:"载荷-Δ-001",
+    sender_intent:"CONFIRM-✓",
+    receiver_expectation:"CONFIRM-✓",
+    context_id:"注文-42",
+    conflict:false,
+    transport_observation:"NOT_OBSERVED",
+    consumption_observation:"UNKNOWN"
+  };
+}
+
+const cases=[
+  {key:"aligned",label:"Aligned",text:"Complete and consistent structure.",build:()=>baseStructure()},
+  {key:"received",label:"Transport observed",text:"Same structure, transport changes.",build:()=>({...baseStructure(),transport_observation:"RECEIVED"})},
+  {key:"consumed",label:"Consumed",text:"Same decision, consumption changes.",build:()=>({...baseStructure(),transport_observation:"RECEIVED",consumption_observation:"CONSUMED"})},
+  {key:"missing",label:"Incomplete",text:"Receiver identity is absent.",build:()=>{const s=baseStructure();delete s.receiver_id;return s}},
+  {key:"idconflict",label:"Identity conflict",text:"Message identities disagree.",build:()=>({...baseStructure(),receiver_expected_message_id:"MSG-999"})},
+  {key:"payload",label:"Payload conflict",text:"Payload identities disagree.",build:()=>({...baseStructure(),receiver_expected_payload_hash:"PAYLOAD-OTHER"})},
+  {key:"intent",label:"Intent conflict",text:"Intent and expectation disagree.",build:()=>({...baseStructure(),receiver_expectation:"DECLINE"})},
+  {key:"explicit",label:"Explicit conflict",text:"Declared conflict blocks admission.",build:()=>({...baseStructure(),conflict:true})}
+];
+
+let current=baseStructure();
+const baselineResult=resolveDelivery(baseStructure());
+
+function setValue(id,value){
+  const el=document.getElementById(id);
+  if(id==="conflict"){
+    el.value=value===true?"true":value===false?"false":"";
+  }else{
+    el.value=value===undefined||value===null?"":value;
+  }
+}
+
+function fillForm(s){
+  required.forEach(id=>setValue(id,s[id]));
+  setValue("conflict",s.conflict);
+  setValue("transport_observation",s.transport_observation||"UNKNOWN");
+  setValue("consumption_observation",s.consumption_observation||"UNKNOWN");
+}
+
+function readForm(){
+  const s={};
+  required.forEach(id=>{
+    const value=document.getElementById(id).value;
+    if(value!=="")s[id]=value;
+  });
+  const conflict=document.getElementById("conflict").value;
+  if(conflict==="true")s.conflict=true;
+  else if(conflict==="false")s.conflict=false;
+  s.transport_observation=document.getElementById("transport_observation").value;
+  s.consumption_observation=document.getElementById("consumption_observation").value;
+  return s;
+}
+
+function paintClass(el,value){
+  el.className="state-value";
+  if(["RESOLVED","ADMITTED","PASS"].includes(value))el.classList.add("ok");
+  else if(["INCOMPLETE","ABSTAIN"].includes(value))el.classList.add("warn");
+  else if(value==="CONFLICT")el.classList.add("bad");
+  else el.classList.add("neutral");
+}
+
+function render(){
+  current=readForm();
+  const r=resolveDelivery(current);
+  const resolution=document.getElementById("resolution");
+  const admission=document.getElementById("delivery_admission");
+  resolution.textContent=r.resolution;paintClass(resolution,r.resolution);
+  admission.textContent=r.delivery_admission;paintClass(admission,r.delivery_admission);
+  document.getElementById("reason_codes").textContent=r.reason_codes.length?r.reason_codes.join(", "):"NONE";
+  document.getElementById("structure_hash").textContent=r.structure_hash;
+  document.getElementById("decision_hash").textContent=r.decision_hash;
+  document.getElementById("observation_hash").textContent=r.observation_hash;
+  const laneAdmission=document.getElementById("laneAdmission");
+  laneAdmission.textContent=r.delivery_admission;paintClass(laneAdmission,r.delivery_admission);
+  const laneTransport=document.getElementById("laneTransport");
+  laneTransport.textContent=r.transport_observation;paintClass(laneTransport,r.transport_observation);
+  const laneConsumption=document.getElementById("laneConsumption");
+  laneConsumption.textContent=r.consumption_observation;paintClass(laneConsumption,r.consumption_observation);
+  const sameStructure=r.structure_hash===baselineResult.structure_hash;
+  const sameDecision=r.decision_hash===baselineResult.decision_hash;
+  const sameObservation=r.observation_hash===baselineResult.observation_hash;
+  document.getElementById("sameStructure").textContent=sameStructure?"SAME":"DIFFERENT";
+  document.getElementById("sameDecision").textContent=sameDecision?"SAME":"DIFFERENT";
+  document.getElementById("sameObservation").textContent=sameObservation?"SAME":"DIFFERENT";
+  document.getElementById("sameStructure").className=sameStructure?"ok":"neutral";
+  document.getElementById("sameDecision").className=sameDecision?"ok":"neutral";
+  document.getElementById("sameObservation").className=sameObservation?"ok":"neutral";
+  return r;
+}
+
+function applyCase(index){
+  current=cases[index].build();
+  fillForm(current);
+  document.querySelectorAll(".case").forEach((el,i)=>el.classList.toggle("active",i===index));
+  render();
+}
+
+function buildCases(){
+  const bar=document.getElementById("casebar");
+  cases.forEach((item,index)=>{
+    const button=document.createElement("button");
+    button.className="case"+(index===0?" active":"");
+    button.innerHTML="<b>Case "+(index+1)+"</b><span>"+item.label+"</span><small>"+item.text+"</small>";
+    button.addEventListener("click",()=>applyCase(index));
+    bar.appendChild(button);
+  });
+}
+
+function withChanges(s,changes){return Object.assign({},s,changes)}
+function withoutField(s,field){const copy={...s};delete copy[field];return copy}
+
+function conformance(){
+  const base=baseStructure();
+  const a=resolveDelivery(base);
+  const received=resolveDelivery(withChanges(base,{transport_observation:"RECEIVED"}));
+  const consumed=resolveDelivery(withChanges(base,{transport_observation:"RECEIVED",consumption_observation:"CONSUMED"}));
+  const invalidTransport=resolveDelivery(withChanges(base,{transport_observation:"BROKEN"}));
+  const invalidConsumption=resolveDelivery(withChanges(base,{consumption_observation:"BROKEN"}));
+  const unicodeResult=resolveDelivery(unicodeStructure());
+  const reordered={
+    consumption_observation:base.consumption_observation,
+    context_id:base.context_id,
+    receiver_expectation:base.receiver_expectation,
+    sender_intent:base.sender_intent,
+    receiver_expected_payload_hash:base.receiver_expected_payload_hash,
+    sender_payload_hash:base.sender_payload_hash,
+    receiver_expected_message_id:base.receiver_expected_message_id,
+    sender_message_id:base.sender_message_id,
+    receiver_id:base.receiver_id,
+    sender_id:base.sender_id,
+    transport_observation:base.transport_observation,
+    conflict:base.conflict
+  };
+  const tests=[
+    ["aligned_structure_resolves",a.resolution==="RESOLVED"],
+    ["aligned_structure_is_admitted",a.delivery_admission==="ADMITTED"],
+    ["transport_observation_does_not_change_structural_decision",a.decision_hash===received.decision_hash],
+    ["transport_observation_changes_observation_receipt",a.observation_hash!==received.observation_hash],
+    ["consumption_observation_does_not_change_structural_decision",received.decision_hash===consumed.decision_hash],
+    ["consumption_observation_changes_observation_receipt",received.observation_hash!==consumed.observation_hash],
+    ["same_structure_same_decision_hash",a.decision_hash===resolveDelivery(base).decision_hash],
+    ["key_order_invariant",a.decision_hash===resolveDelivery(reordered).decision_hash],
+    ["missing_receiver_is_incomplete",resolveDelivery(withoutField(base,"receiver_id")).resolution==="INCOMPLETE"],
+    ["missing_receiver_abstains",resolveDelivery(withoutField(base,"receiver_id")).delivery_admission==="ABSTAIN"],
+    ["empty_message_id_is_incomplete",resolveDelivery(withChanges(base,{sender_message_id:""})).resolution==="INCOMPLETE"],
+    ["null_intent_is_incomplete",resolveDelivery(withChanges(base,{sender_intent:null})).resolution==="INCOMPLETE"],
+    ["invalid_conflict_type_is_incomplete",resolveDelivery(withChanges(base,{conflict:"false"})).resolution==="INCOMPLETE"],
+    ["message_identity_mismatch_conflicts",resolveDelivery(withChanges(base,{receiver_expected_message_id:"MSG-999"})).resolution==="CONFLICT"],
+    ["payload_mismatch_conflicts",resolveDelivery(withChanges(base,{receiver_expected_payload_hash:"PAYLOAD-OTHER"})).resolution==="CONFLICT"],
+    ["intent_mismatch_conflicts",resolveDelivery(withChanges(base,{receiver_expectation:"DECLINE"})).resolution==="CONFLICT"],
+    ["explicit_conflict_conflicts",resolveDelivery(withChanges(base,{conflict:true})).resolution==="CONFLICT"],
+    ["conflict_abstains",resolveDelivery(withChanges(base,{conflict:true})).delivery_admission==="ABSTAIN"],
+    ["structural_change_changes_structure_hash",a.structure_hash!==resolveDelivery(withChanges(base,{context_id:"ORDER-43"})).structure_hash],
+    ["structural_change_changes_decision_hash",a.decision_hash!==resolveDelivery(withChanges(base,{context_id:"ORDER-43"})).decision_hash],
+    ["invalid_transport_observation_is_explicit",invalidTransport.transport_observation==="INVALID"],
+    ["invalid_consumption_observation_is_explicit",invalidConsumption.consumption_observation==="INVALID"],
+    ["unicode_structure_hash_fixture",unicodeResult.structure_hash==="7f8373ff19549acdd2d6aabaaca4b586756b1d1ec11291cd350237e45e60fc8d"],
+    ["unicode_decision_hash_fixture",unicodeResult.decision_hash==="8e7108d66e658dfbc65a33e45060e96f2fc1392f085d53f7934ba691b589afce"],
+    ["unicode_observation_hash_fixture",unicodeResult.observation_hash==="c34d6d177369c495eab86c25ce124e4c8f72852289a9175dfbf1d0ce4923cd6f"]
+  ];
+  const checks=document.getElementById("checks");
+  checks.innerHTML="";
+  let passed=0;
+  tests.forEach(([name,ok])=>{
+    if(ok)passed++;
+    const row=document.createElement("div");
+    row.className="check";
+    row.innerHTML='<span class="dot" style="background:'+(ok?'var(--mint)':'var(--red)')+'"></span><span>'+name.replaceAll("_"," ")+'</span>';
+    checks.appendChild(row);
+  });
+  document.getElementById("score").textContent=passed+"/"+tests.length;
+  const state=document.getElementById("scoreState");
+  state.textContent=passed===tests.length?"PASS":"FAIL";
+  paintClass(state,state.textContent);
+}
+
+function downloadReceipt(){
+  const result=render();
+  const payload={input:current,result};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="STILE_Delivery_Admission_Receipt.json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+buildCases();
+fillForm(current);
+document.querySelectorAll("input,select").forEach(el=>el.addEventListener("input",render));
+document.getElementById("baselineBtn").addEventListener("click",()=>applyCase(0));
+document.getElementById("swapTransportBtn").addEventListener("click",()=>{
+  const el=document.getElementById("transport_observation");
+  el.value=el.value==="RECEIVED"?"NOT_OBSERVED":"RECEIVED";
+  document.querySelectorAll(".case").forEach(el=>el.classList.remove("active"));
+  render();
+});
+document.getElementById("consumeBtn").addEventListener("click",()=>{
+  const el=document.getElementById("consumption_observation");
+  el.value=el.value==="CONSUMED"?"UNKNOWN":"CONSUMED";
+  document.querySelectorAll(".case").forEach(el=>el.classList.remove("active"));
+  render();
+});
+document.getElementById("downloadBtn").addEventListener("click",downloadReceipt);
+document.querySelectorAll(".copy").forEach(button=>button.addEventListener("click",async()=>{
+  const text=document.getElementById(button.dataset.copy).textContent;
+  try{
+    await navigator.clipboard.writeText(text);
+    const old=button.textContent;
+    button.textContent="Copied";
+    setTimeout(()=>button.textContent=old,900);
+  }catch{
+    button.textContent="Select";
+    setTimeout(()=>button.textContent="Copy",900);
+  }
+}));
+render();
+conformance();
+</script>
+</body>
+</html>
