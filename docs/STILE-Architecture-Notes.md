@@ -1,413 +1,604 @@
 # ⭐ STILE — Architecture Notes
 
-**Structural Integration Leverage**  
-**Correctness Without Communication**  
-**Shunyaya Structural Resolution Model**
+## Structural Integration Leverage
 
-**Deterministic • Structure-Based • Alignment-Driven Resolution**
+### Delivery-State Resolution Without Transport as the Sole Authority
 
-**No Communication • No Retries • No Acknowledgements • No Network Dependency**
+**Deterministic • Structure-Based • Bounded Structural Admission**
 
 ---
 
-## **1. Architectural Purpose**
+## 1. Architectural Purpose
 
-STILE defines a structural delivery architecture in which:
+STILE defines a bounded structural admission architecture that separates:
 
-**delivery correctness is derived from structure**  
-—not from communication, acknowledgements, retries, or network interaction
+`transport movement`
 
-It enables systems to:
+`structural admissibility`
 
-• determine delivery truth without communication  
-• avoid false delivery under incomplete structure  
-• prevent unsafe confirmation under conflicting structure  
-• produce deterministic and reproducible delivery outcomes  
+`consumption`
 
----
+The core separation is:
 
-## **2. Core Architectural Principle**
+`transport_state != structural_delivery_state != consumption_state`
 
-`correctness = resolve(structure)`
+The architecture is designed so that transport and consumption observations can change without automatically rewriting the bounded structural admission decision.
 
-`delivery != communication`  
-`delivery = resolve(structure)`
+The governing relation is:
 
-**Implication:**
+`structural_delivery_state = resolve(declared_delivery_structure, versioned_rules)`
 
-Delivery correctness does not depend on:
+Within the declared profile:
 
-• communication  
-• network transmission  
-• acknowledgements  
-• retries  
-• delivery pipelines  
-
-Delivery correctness depends only on:
-
-• structural completeness  
-• structural consistency  
+`same declared structure + same versioned rules -> same structural decision`
 
 ---
 
-## **2.1 Architectural Theorem (STILE)**
+## 2. Reference Identity
 
-Given structure `S`:
+The current reference architecture is defined by:
 
-`delivery correctness = resolve(structure)`
+`Profile: STILE-DELIVERY-ADMISSION-1-D01`
 
-and is independent of:
+`Schema: 2.1.0`
 
-• communication  
-• message exchange  
-• retry logic  
-• coordination  
+The current implementation resolves three structural outcomes:
 
-These influence only:
+`complete + consistent -> RESOLVED + ADMITTED`
 
-• transport  
-• realization  
+`incomplete -> INCOMPLETE + ABSTAIN`
 
-They do not determine correctness.
+`conflicting -> CONFLICT + ABSTAIN`
+
+The model is intentionally bounded to its declared profile and rules.
 
 ---
 
-## **3. High-Level Architecture**
+## 3. High-Level Architecture
 
-STILE separates the system into three conceptual layers:
+STILE separates the system into three independent lanes.
 
-### **3.1 Structural Truth Layer**
+### 3.1 Structural Admission Lane
 
 Responsible for:
 
-• evaluating structure  
-• determining delivery correctness  
+- evaluating declared structural fields;
+- checking completeness;
+- checking consistency;
+- producing a bounded structural decision;
+- producing structural and decision evidence identities.
 
-Defined by:
+Outputs include:
 
-`resolve(S) → resolution_state`
+`resolution`
 
-Outputs:
+`delivery_admission`
 
-• `RESOLVED`  
-• `ABSTAIN`  
-• `CONFLICT`  
+`reason_codes`
 
-This layer is **communication-independent**.
+`structure_hash`
 
----
+`decision_hash`
 
-### **3.2 Representation Layer (Optional)**
-
-Responsible for:
-
-• expressing structure as message models or system states  
-
-Includes:
-
-• message schemas  
-• API payloads  
-• state representations  
-
-This layer does **not determine correctness**.  
-It only expresses structure.
+The structural admission lane does not use transport or consumption observations as inputs to its decision logic.
 
 ---
 
-### **3.3 Execution Layer (Optional)**
+### 3.2 Transport Observation Lane
 
-Responsible for:
+Responsible for recording operational movement.
 
-• message transport  
-• network communication  
-• delivery realization  
+Current reference states are:
 
-Includes:
+`UNKNOWN`
 
-• messaging systems  
-• APIs  
-• queues  
-• network protocols  
+`NOT_OBSERVED`
 
-This layer is **not a source of correctness**.  
-It only carries or realizes structurally valid delivery.
+`SENT`
 
----
+`RECEIVED`
 
-## **4. Structural Data Model**
+`FAILED`
 
-### **4.1 Structure (S)**
+Unsupported values are normalized to:
 
-A set of structural conditions required for delivery:
+`INVALID`
 
-• sender intent  
-• receiver expectation  
-• message identity  
-• conflict state  
-• delivery context  
+Transport observations are not included in the structural core.
 
----
+They do not independently alter:
 
-### **4.2 Structural Alignment**
+`resolution`
 
-`structure_aligned = complete AND consistent`
+`delivery_admission`
 
-Only when aligned:
+`reason_codes`
 
-`resolve(S) → RESOLVED`
+`structure_hash`
+
+`decision_hash`
+
+They are represented only in the observation evidence layer.
 
 ---
 
-### **4.3 Visibility Rule**
+### 3.3 Consumption Observation Lane
 
-`message_delivered iff structure_aligned`
+Responsible for recording later use or handling.
 
-Absence of `message_delivered` indicates structural non-alignment.
+Current reference states are:
 
----
+`UNKNOWN`
 
-## **5. Delivery Resolution Model**
+`UNREAD`
 
-### **5.1 Resolution Function**
+`CONSUMED`
 
-`resolve(S)` →
+`REJECTED`
 
-• `RESOLVED` if structure is aligned  
-• `ABSTAIN` if structure is incomplete  
-• `CONFLICT` if structure is inconsistent  
+Unsupported values are normalized to:
 
----
+`INVALID`
 
-### **5.2 Delivery Validity**
+Consumption observations do not independently alter:
 
-A message is delivered when:
+`resolution`
 
-• identity is valid  
-• intent matches expectation  
-• no conflict exists  
-• required context is complete  
+`delivery_admission`
 
----
+`reason_codes`
 
-### **5.3 Competing State Handling**
+`structure_hash`
 
-When multiple structural conditions exist:
+`decision_hash`
 
-• valid structures are evaluated independently  
-• invalid structures are ignored  
-• incomplete structures do not force delivery  
-
-Resolution depends only on structurally valid conditions.
+They are represented only in the observation evidence layer.
 
 ---
 
-## **6. Deterministic Output Model**
+## 4. Structural Data Model
 
-### **6.1 Visible State**
+The current structural core contains:
 
-Visible state is the minimal structurally valid delivery outcome:
+`sender_id`
 
-• message_delivered  
-• delivery_state  
-• message identity  
-• certificate (`sigma`)  
+`receiver_id`
 
-It excludes:
+`sender_message_id`
 
-• communication steps  
-• retry attempts  
-• transport logs  
+`receiver_expected_message_id`
 
----
+`sender_payload_hash`
 
-### **6.2 Structural Certificate**
+`receiver_expected_payload_hash`
 
-`normalized_delivery_state = normalize(DeliveryState)`
+`sender_intent`
 
-`certificate = SHA256(normalized_delivery_state)`
+`receiver_expectation`
 
----
+`context_id`
 
-### **6.3 Deterministic Guarantee**
+`conflict`
 
-`S1 = S2 → DeliveryState1 = DeliveryState2 → Certificate1 = Certificate2`
+The resolver also accepts:
 
-Same structure → same delivery state → same certificate.
+`transport_observation`
 
----
+`consumption_observation`
 
-## **7. Structural Independence Properties**
-
-### **7.1 Order Independence**
-
-Structure evaluation is independent of:
-
-• field ordering  
-• condition evaluation order  
+These two observational fields are deliberately outside the structural core.
 
 ---
 
-### **7.2 Idempotence**
+## 5. Completeness Model
 
-Repeated evaluation produces:
+The required structural string fields must be:
 
-• identical delivery state  
-• identical certificate  
+- present;
+- non-null;
+- strings;
+- non-empty.
 
----
+The `conflict` field must be:
 
-### **7.3 Communication Independence**
+- present;
+- non-null;
+- Boolean.
 
-Correctness is independent of:
+If these requirements are not satisfied:
 
-• message sending  
-• acknowledgement flow  
-• retry sequence  
-• network timing  
+`resolution = INCOMPLETE`
 
-These may occur in implementation,  
-but do not determine correctness.
+`delivery_admission = ABSTAIN`
 
----
+The resolver emits deterministic reason codes such as:
 
-## **8. Safety Model**
+`MISSING_RECEIVER_ID`
 
-### **8.1 Incomplete Structure**
+`EMPTY_SENDER_MESSAGE_ID`
 
-`resolve(S) → ABSTAIN`
+`NULL_SENDER_INTENT`
 
-**Guarantee:**
+`INVALID_TYPE_CONFLICT`
 
-• no false delivery  
-
----
-
-### **8.2 Conflicting Structure**
-
-`resolve(S) → CONFLICT`
-
-**Guarantee:**
-
-• no false confirmation  
+The architecture therefore does not infer missing structural support.
 
 ---
 
-### **8.3 Invalid Structure**
+## 6. Consistency Model
 
-Invalid conditions:
+For complete structure, the current profile requires:
 
-• are rejected  
-• do not override valid structure  
+`sender_message_id = receiver_expected_message_id`
 
----
+`sender_payload_hash = receiver_expected_payload_hash`
 
-### **8.4 Core Safety Principle**
+`sender_intent = receiver_expectation`
 
-• incomplete → no forced delivery  
-• conflicting → no arbitrary delivery  
-• complete → deterministic delivery  
+`conflict = false`
 
----
+If one or more conditions fail:
 
-## **9. Structural Convergence**
+`resolution = CONFLICT`
 
-Given identical structure:
+`delivery_admission = ABSTAIN`
 
-`S1 = S2`
+Possible reason codes include:
 
-Then:
+`MESSAGE_ID_MISMATCH`
 
-• identical resolution  
-• identical delivery state  
-• identical certificate  
+`PAYLOAD_HASH_MISMATCH`
 
-Convergence is:
+`INTENT_EXPECTATION_MISMATCH`
 
-• deterministic  
-• communication-independent  
+`EXPLICIT_CONFLICT`
+
+The architecture therefore does not convert contradiction into positive admission.
 
 ---
 
-## **10. Dependency Elimination Model**
+## 7. Structural Admission Rule
 
-STILE removes:
+The structural decision is defined by three mutually exclusive branches:
 
-• communication dependency  
-• acknowledgement dependency  
-• retry dependency  
-• network dependency  
+`not complete -> INCOMPLETE + ABSTAIN`
 
-Yet preserves:
+`complete AND not consistent -> CONFLICT + ABSTAIN`
 
-• delivery correctness  
+`complete AND consistent -> RESOLVED + ADMITTED`
 
----
-
-### **10.1 Mapping**
-
-| Dependency Removed | What Preserves Correctness |
-|-------------------|---------------------------|
-| communication     | structure                 |
-| acknowledgements  | structure                 |
-| retries           | structure                 |
-| network           | structure                 |
-| delivery pipelines| structure                 |
+This creates a deterministic bounded admission result for each accepted input structure under the active profile and schema.
 
 ---
 
-## **11. Architectural Implications**
+## 8. Evidence Architecture
 
-STILE shifts system design from:
+STILE v2.1 produces three SHA-256 evidence identities.
 
-| Traditional Model              | STILE Model                 |
-|------------------------------|-----------------------------|
-| delivery from communication  | delivery from structure     |
-| ACK suggests delivery        | structure defines truth     |
-| retry-based reliability      | structural determinism      |
-| communication required       | communication optional      |
+### 8.1 Structure Hash
 
----
+The structure record is:
 
-## **12. What This Architecture Enables**
+`StructureRecord = {profile_id, schema_version, structural_core}`
 
-• communication-independent correctness  
-• deterministic delivery validation  
-• safe absence under incomplete structure  
-• conflict-safe resolution  
-• reproducible structural proofs  
+The structure identity is:
+
+`structure_hash = SHA256(canonical_json(StructureRecord))`
+
+This binds the declared structural core to the active profile and schema.
+
+Transport and consumption observations are not included.
 
 ---
 
-## **13. Architectural Boundaries**
+### 8.2 Decision Hash
 
-STILE does **NOT**:
+The decision record is:
 
-• replace messaging systems  
-• eliminate transport  
-• prove physical delivery  
-• reduce latency  
+`DecisionRecord = {profile_id, schema_version, structure_hash, resolution, delivery_admission, reason_codes}`
 
-It defines the **correctness layer**, not execution.
+The decision identity is:
 
----
+`decision_hash = SHA256(canonical_json(DecisionRecord))`
 
-## **14. Relationship to Shunyaya Framework**
-
-STILE extends the structural elimination pattern:
-
-• SLANG → correctness without execution  
-• ORL → correctness without ordering  
-• STINT → correctness without connectivity  
-• STRAL → correctness without traversal  
-• STILE → correctness without communication  
-
-Each removes a dependency.  
-Correctness remains preserved by structure.
+This binds the bounded structural decision to the exact version-bound structure identity.
 
 ---
 
-## **15. Final Architectural Statement**
+### 8.3 Observation Hash
 
-STILE defines a structural delivery architecture in which:
+The observation record is:
 
-**delivery correctness emerges deterministically from complete and consistent structure — independent of communication, acknowledgements, retries, or network interaction — while safely preventing false delivery under incomplete structure and unsafe confirmation under conflicting structure.**
+`ObservationRecord = {decision_hash, transport_observation, consumption_observation}`
+
+The observation identity is:
+
+`observation_hash = SHA256(canonical_json(ObservationRecord))`
+
+This allows transport and consumption observations to change without rewriting the structural decision identity.
+
+---
+
+## 9. Lane-Separation Invariants
+
+For a transport-only change:
+
+`same structural core`
+
+`different transport observation`
+
+the architecture preserves:
+
+`same structure_hash`
+
+`same decision_hash`
+
+while:
+
+`observation_hash`
+
+may change.
+
+Therefore:
+
+`transport-only change -> same structural decision`
+
+For a consumption-only change:
+
+`same structural core`
+
+`different consumption observation`
+
+the architecture also preserves:
+
+`same structure_hash`
+
+`same decision_hash`
+
+while:
+
+`observation_hash`
+
+may change.
+
+Therefore:
+
+`consumption-only change -> same structural decision`
+
+---
+
+## 10. Deterministic Properties
+
+Within the same profile, schema, canonicalization, rules, and accepted input:
+
+`same declared structure -> same structural decision`
+
+`same canonical structure record -> same structure_hash`
+
+`same canonical decision record -> same decision_hash`
+
+`same canonical observation record -> same observation_hash`
+
+Repeated evaluation is stable:
+
+`same input replay -> same structural decision and same evidence identities`
+
+The current conformance suite also verifies property-order invariance for equivalent reference objects.
+
+---
+
+## 11. Canonicalization and Cross-Runtime Parity
+
+The Python and browser references use matching canonical JSON behavior for the declared object model.
+
+The v2.1 pair verifies:
+
+`baseline cross-runtime hash parity -> PASS`
+
+`Unicode cross-runtime hash parity -> PASS`
+
+The current profile uses fixed ASCII field names and supports Unicode string values.
+
+This parity claim is bounded to the declared canonicalization model and tested fixtures.
+
+It is not a claim that all serialization formats are automatically equivalent.
+
+---
+
+## 12. Version Binding
+
+The profile and schema are part of the hashed structure record.
+
+Therefore:
+
+`profile + schema + structural core -> structure_hash`
+
+A schema change intentionally changes the version-bound evidence identity.
+
+This prevents evidence generated under one schema from silently presenting itself as evidence generated under another schema.
+
+---
+
+## 13. Safety Architecture
+
+### 13.1 Incomplete-State Safety
+
+`incomplete -> INCOMPLETE + ABSTAIN`
+
+Guarantee within the declared profile:
+
+`incomplete structure -> no ADMITTED result`
+
+---
+
+### 13.2 Conflict Safety
+
+`conflicting -> CONFLICT + ABSTAIN`
+
+Guarantee within the declared profile:
+
+`conflicting structure -> no ADMITTED result`
+
+---
+
+### 13.3 Positive Admission
+
+`complete + consistent -> RESOLVED + ADMITTED`
+
+Positive admission is therefore bounded by the profile's declared completeness and consistency rules.
+
+---
+
+## 14. Authority Boundaries
+
+STILE does not collapse all system state into one authority.
+
+### Transport establishes movement
+
+Transport may be operationally necessary when data must physically move.
+
+### Structure establishes admissibility
+
+The structural lane determines whether the declared structure is admissible under the active profile.
+
+### Consumption establishes use
+
+Consumption records later reading, acceptance, rejection, or use.
+
+The architecture therefore avoids treating any one of these as the entire system truth.
+
+---
+
+## 15. Architectural Claim Boundary
+
+STILE v2.1 does not claim that:
+
+- physical transmission is unnecessary where data must move;
+- structural admission proves remote receipt;
+- structural admission proves human reading or consumption;
+- transport systems are universally unnecessary;
+- acknowledgements and retries are universally unnecessary;
+- the current profile is a universal delivery oracle;
+- deterministic resolution guarantees that declared inputs are factually true;
+- the model provides distributed consensus, finality, or legal delivery.
+
+The bounded architectural claim is:
+
+`transport observation is not the sole authority over the bounded structural admission decision`
+
+and:
+
+`consumption observation is not the sole authority over the bounded structural admission decision`
+
+---
+
+## 16. Practical Deployment Pattern
+
+A deployment may use STILE alongside existing systems.
+
+Transport systems may:
+
+- move data;
+- record network events;
+- produce transport observations.
+
+Receiving systems may:
+
+- record unread state;
+- record consumption;
+- record rejection.
+
+STILE resolves a separate bounded question:
+
+`is the declared delivery structure admissible under the named profile and versioned rules?`
+
+This separation allows existing operational systems to remain in place while structural admission is handled independently.
+
+---
+
+## 17. Reference Verification
+
+The current reference pair has been verified with:
+
+`Python conformance -> 25/25 PASS`
+
+`Browser built-in conformance -> 25/25 PASS`
+
+`Full browser audit -> 30/30 PASS`
+
+`Visible demonstration cases -> 8/8 expected`
+
+`Baseline cross-runtime hash parity -> PASS`
+
+`Unicode cross-runtime hash parity -> PASS`
+
+`Invalid observation handling parity -> PASS`
+
+These results establish conformance of the current reference implementation to the declared v2.1 behavior.
+
+---
+
+## 18. Architectural Extension Points
+
+Possible future extensions include:
+
+- additional structural fields;
+- domain-specific profiles;
+- multi-party structural admission;
+- stronger certificate formats;
+- independent language ports;
+- richer conformance suites;
+- application-specific trust models;
+- explicit upstream authority models.
+
+Any extension should preserve:
+
+`clear profile identity`
+
+`clear schema identity`
+
+`deterministic rules`
+
+`explicit claim boundaries`
+
+`separation between structural decisions and observations`
+
+---
+
+## 19. Relationship to the Shunyaya Framework
+
+STILE is developed within the Shunyaya Framework.
+
+Its architectural contribution is the explicit separation:
+
+`transport establishes movement`
+
+`structure establishes admissibility`
+
+`consumption establishes use`
+
+The focus is not the removal of operational systems.
+
+The focus is the prevention of one operational mechanism from automatically becoming the sole authority over a bounded structural admission decision.
+
+---
+
+## 20. Final Architectural Statement
+
+STILE v2.1 defines a deterministic structural admission architecture in which complete and consistent declared structure produces `RESOLVED + ADMITTED`, incomplete structure produces `INCOMPLETE + ABSTAIN`, and conflicting structure produces `CONFLICT + ABSTAIN`.
+
+Transport and consumption remain separate observation lanes.
+
+The architecture preserves the bounded invariant:
+
+`same declared structure + same versioned rules -> same structural decision`
+
+while allowing:
+
+`transport observation`
+
+and:
+
+`consumption observation`
+
+to change independently without rewriting that structural decision.
