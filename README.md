@@ -416,12 +416,34 @@ For the frozen SHA-256 identities of the reference files:
 
 ---
 
-## 🔗 Active Reference Files
+## 🔗 Documentation and Reference Files
+
+### Reference Implementation
 
 - [STILE v2.1 Python Reference](reference/stile_delivery_admission_v2_1.py)
 - [STILE v2.1 Browser Reference](reference/STILE_Delivery_Admission_Browser_Demo_v2_1.html)
-- [STILE v2.1 Verification Guide](VERIFY/VERIFY.md)
-- [STILE v2.1 SHA-256 Freeze](VERIFY/FREEZE_DEMO_SHA256.txt)
+
+### Documentation
+
+- [Quickstart Guide](docs/Quickstart.md)
+- [Frequently Asked Questions](docs/FAQ.md)
+- [Proof Sketch](docs/Proof-Sketch.md)
+- [Architecture Notes](docs/STILE-Architecture-Notes.md)
+
+### Diagrams
+
+- [STILE v2.1 Structural Delivery Admission Diagram](docs/STILE-Message-Delivery.png)
+- [Dependency Elimination Framework](docs/Dependency-Elimination-Framework.png)
+- [Shunyaya Structural Stack](docs/Shunyaya-Structural-Stack.png)
+
+### Verification
+
+- [Verification Guide](VERIFY/VERIFY.md)
+- [SHA-256 Freeze](VERIFY/FREEZE_DEMO_SHA256.txt)
+
+### License
+
+- [STILE Open Use License v1.0](LICENSE)
 
 ---
 
